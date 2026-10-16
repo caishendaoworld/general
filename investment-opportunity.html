@@ -208,6 +208,13 @@
     line-height:1.4;
   }
   .mast-meta .v.is-red{color:var(--cyber);}
+  .mast-meta .v a{
+    color:var(--cyber);
+    text-decoration:none;
+    border-bottom:1px solid var(--cyber-glow-soft);
+    transition:border-color .2s ease;
+  }
+  .mast-meta .v a:hover{border-bottom-color:var(--cyber);}
 
   /* ================= 目录导航 ================= */
   .toc{
@@ -812,6 +819,13 @@
     min-width:0;
   }
   .term-v b{color:var(--ink);font-weight:700;}
+  .term-v a{
+    color:var(--cyber);
+    text-decoration:none;
+    border-bottom:1px solid var(--cyber-glow-soft);
+    transition:border-color .2s ease;
+  }
+  .term-v a:hover{border-bottom-color:var(--cyber);}
 
   /* ================= 高亮卡片 ================= */
   .hl-box{
@@ -843,6 +857,61 @@
     line-height:1.8;
   }
   .hl-box-body b{color:var(--ink);font-weight:700;}
+  .hl-box-body a{
+    color:var(--cyber);
+    text-decoration:none;
+    border-bottom:1px solid var(--cyber-glow-soft);
+    transition:border-color .2s ease;
+  }
+  .hl-box-body a:hover{border-bottom-color:var(--cyber);}
+
+  /* ================= 合约地址行 ================= */
+  .ca-line{
+    display:flex;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:4px;
+    margin-bottom:6px;
+  }
+  .ca-line .ca-label{
+    color:var(--ink);
+    font-weight:700;
+    flex:none;
+  }
+  .ca-short{
+    font-family:var(--mono);
+    font-size:13px;
+    color:var(--ink-2);
+    letter-spacing:.01em;
+    user-select:all;
+  }
+  .ca-copy{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:22px;
+    height:22px;
+    padding:0;
+    border:0;
+    border-radius:4px;
+    background:transparent;
+    color:var(--ink-3);
+    cursor:pointer;
+    font-size:11px;
+    transition:color .2s ease, background .15s ease, box-shadow .25s ease;
+    -webkit-tap-highlight-color:transparent;
+    flex:none;
+  }
+  .ca-copy:hover{
+    color:var(--cyber);
+    background:var(--cyber-glow-faint);
+    box-shadow:0 0 0 1px var(--cyber-glow-soft);
+  }
+  .ca-copy:active{background:var(--cyber-glow-soft);}
+  .ca-copy.copied{color:var(--cyber);}
+  .ca-copy .ico-check{display:none;}
+  .ca-copy.copied .ico-copy{display:none;}
+  .ca-copy.copied .ico-check{display:inline;}
 
   /* ================= 页脚 ================= */
   .doc-foot{
@@ -884,6 +953,13 @@
     word-break:break-all;
     text-align:right;
   }
+  .foot-v a{
+    color:var(--ink-3);
+    text-decoration:none;
+    border-bottom:1px solid var(--line);
+    transition:color .2s ease, border-color .2s ease;
+  }
+  .foot-v a:hover{color:var(--cyber);border-bottom-color:var(--cyber);}
   .disc{
     margin-top:var(--sp-5);
     padding-top:var(--sp-4);
@@ -973,7 +1049,6 @@
       </div>
       <div class="ticker">
         <span class="sym">$财神到</span>
-        
       </div>
     </div>
 
@@ -989,6 +1064,10 @@
       <div class="cell">
         <span class="k">预计回报</span>
         <span class="v num">3–10×</span>
+      </div>
+      <div class="cell">
+        <span class="k">官网</span>
+        <span class="v"><a href="https://caishendao.world/" target="_blank" rel="noopener">caishendao.world</a></span>
       </div>
     </div>
   </header>
@@ -1045,7 +1124,17 @@
     <div class="hl-box">
       <div class="hl-box-title">核心资产</div>
       <div class="hl-box-body">
-        <b>合约地址：</b>68PUv5chFPRKmh82VLM78WSHumhVVntkJuWZSBhA6868<br>
+        <div class="ca-line">
+          <span class="ca-label">合约地址：</span>
+          <span class="ca-short">68PU...A6868</span>
+          <button class="ca-copy" id="caCopyBtn" type="button"
+                  data-addr="68PUv5chFPRKmh82VLM78WSHumhVVntkJuWZSBhA6868"
+                  aria-label="复制合约地址" title="复制合约地址">
+            <i class="fas fa-copy ico-copy" aria-hidden="true"></i>
+            <i class="fas fa-check ico-check" aria-hidden="true"></i>
+          </button>
+        </div>
+        <b>官网：</b><a href="https://caishendao.world/" target="_blank" rel="noopener">https://caishendao.world/</a><br>
         <b>网络：</b>Solana SPL &nbsp;|&nbsp; <b>总供应量：</b>686,868,686 枚 &nbsp;|&nbsp; <b>增发权限：</b>无
       </div>
     </div>
@@ -1669,10 +1758,14 @@
         <span class="term-v">大额投资人可获财神 NFT 优先认购权、生态分红优先权与治理参与权</span>
       </div>
       <div class="term-row">
+        <span class="term-k">官网</span>
+        <span class="term-v"><a href="https://caishendao.world/" target="_blank" rel="noopener">https://caishendao.world/</a></span>
+      </div>
+      <div class="term-row">
         <span class="term-k">商务对接</span>
         <span class="term-v">
           TG电报：<b>@jaydenk168</b><br>
-                         邮箱：<b>caishendao.world@gmail.com</b>
+          邮箱：<b>caishendao.world@gmail.com</b>
         </span>
       </div>
     </div>
@@ -1693,6 +1786,10 @@
     <div class="foot-row">
       <span class="foot-k">Document</span>
       <span class="foot-v">财神到 · Investment Opportunity V3.2</span>
+    </div>
+    <div class="foot-row">
+      <span class="foot-k">Website</span>
+      <span class="foot-v"><a href="https://caishendao.world/" target="_blank" rel="noopener">https://caishendao.world/</a></span>
     </div>
     <div class="foot-row">
       <span class="foot-k">Contract</span>
@@ -1716,6 +1813,43 @@
 
 <script>
   (function () {
+    /* ---------- 合约地址复制 ---------- */
+    var caBtn = document.getElementById('caCopyBtn');
+    if (caBtn) {
+      caBtn.addEventListener('click', function () {
+        var addr = caBtn.getAttribute('data-addr') || '';
+
+        function done() {
+          caBtn.classList.add('copied');
+          setTimeout(function () {
+            caBtn.classList.remove('copied');
+          }, 1400);
+        }
+
+        function fallback(text, cb) {
+          var ta = document.createElement('textarea');
+          ta.value = text;
+          ta.setAttribute('readonly', '');
+          ta.style.position = 'fixed';
+          ta.style.top = '-1000px';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          ta.setSelectionRange(0, text.length);
+          try { document.execCommand('copy'); cb && cb(); } catch (e) {}
+          document.body.removeChild(ta);
+        }
+
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(addr).then(done).catch(function () {
+            fallback(addr, done);
+          });
+        } else {
+          fallback(addr, done);
+        }
+      });
+    }
+
     /* ---------- 目录导航高亮 ---------- */
     var links = Array.prototype.slice.call(document.querySelectorAll('.toc-link'));
     if (links.length) {
