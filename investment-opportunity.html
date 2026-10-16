@@ -69,6 +69,259 @@
     box-shadow:0 0 0 4px var(--cyber-glow-soft);
   }
 
+  /* ================= 登录门禁 ================= */
+  #loginGate{
+    position:fixed;
+    inset:0;
+    z-index:9999;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    background:
+      radial-gradient(circle at 30% 20%, rgba(255,45,85,.10), transparent 55%),
+      radial-gradient(circle at 75% 80%, rgba(168,130,28,.10), transparent 55%),
+      var(--bg);
+    transition:opacity .4s ease, visibility .4s ease;
+  }
+  #loginGate::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background-image:
+      linear-gradient(rgba(255,45,85,.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,45,85,.05) 1px, transparent 1px);
+    background-size:38px 38px;
+    mask-image:radial-gradient(circle at 50% 50%, #000 20%, transparent 75%);
+    -webkit-mask-image:radial-gradient(circle at 50% 50%, #000 20%, transparent 75%);
+    pointer-events:none;
+  }
+  #loginGate.hidden{
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+  }
+
+  .gate-card{
+    position:relative;
+    width:100%;
+    max-width:400px;
+    padding:34px 30px 30px;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:6px;
+    box-shadow:
+      0 24px 60px -20px rgba(20,24,29,.28),
+      0 0 0 1px var(--cyber-glow-faint),
+      0 0 40px -12px var(--cyber-glow-soft);
+    text-align:center;
+    overflow:hidden;
+    animation:gateIn .5s cubic-bezier(.34,1.2,.64,1);
+  }
+  @keyframes gateIn{
+    from{opacity:0; transform:translateY(14px) scale(.98);}
+    to{opacity:1; transform:none;}
+  }
+  .gate-card::before{
+    content:"";
+    position:absolute;
+    top:0;left:0;right:0;
+    height:3px;
+    background:linear-gradient(90deg,
+      var(--cyber) 0%,
+      var(--cyber) 42%,
+      var(--gold) 42%,
+      var(--gold) 100%);
+    box-shadow:0 0 12px var(--cyber-glow), 0 0 24px var(--cyber-glow-soft);
+  }
+  .gate-card::after{
+    content:"";
+    position:absolute;
+    top:0;right:0;
+    width:0;height:0;
+    border-top:18px solid var(--cyber-glow-soft);
+    border-left:18px solid transparent;
+    pointer-events:none;
+  }
+
+  .gate-seal{
+    width:56px;height:56px;
+    margin:0 auto 16px;
+    border-radius:50%;
+    background:var(--cyber-glow-faint);
+    border:1px solid var(--cyber-glow-soft);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--cyber);
+    font-size:22px;
+    position:relative;
+  }
+  .gate-seal::before{
+    content:"";
+    position:absolute;
+    inset:-7px;
+    border-radius:50%;
+    border:1px dashed var(--cyber-glow-soft);
+    animation:sealSpin 18s linear infinite;
+  }
+  @keyframes sealSpin{
+    to{transform:rotate(360deg);}
+  }
+
+  .gate-title{
+    margin:0 0 6px;
+    font-size:19px;
+    font-weight:700;
+    letter-spacing:-.01em;
+    color:var(--ink);
+  }
+  .gate-sub{
+    margin:0 0 24px;
+    font-family:var(--mono);
+    font-size:10.5px;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--muted);
+  }
+
+  .gate-input-wrap{
+    position:relative;
+    margin-bottom:14px;
+  }
+  .gate-input{
+    width:100%;
+    padding:13px 44px 13px 42px;
+    background:var(--bg);
+    border:1px solid var(--line);
+    border-radius:var(--r);
+    color:var(--ink);
+    font-size:14px;
+    font-family:var(--mono);
+    letter-spacing:.04em;
+    outline:none;
+    transition:border-color .2s ease, box-shadow .25s ease, background .2s ease;
+    -webkit-appearance:none;
+  }
+  .gate-input::placeholder{
+    color:var(--muted);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;
+    letter-spacing:0;
+  }
+  .gate-input:focus{
+    border-color:var(--cyber);
+    box-shadow:0 0 0 3px var(--cyber-glow-soft);
+    background:var(--card);
+  }
+  .gate-input.error{
+    border-color:var(--red);
+    box-shadow:0 0 0 3px rgba(169,31,39,.14);
+    animation:gateShake .4s ease;
+  }
+  @keyframes gateShake{
+    0%,100%{transform:translateX(0);}
+    20%{transform:translateX(-6px);}
+    40%{transform:translateX(5px);}
+    60%{transform:translateX(-4px);}
+    80%{transform:translateX(3px);}
+  }
+  .gate-input-icon{
+    position:absolute;
+    left:14px;
+    top:50%;
+    transform:translateY(-50%);
+    color:var(--muted);
+    font-size:13px;
+    pointer-events:none;
+    transition:color .2s ease;
+  }
+  .gate-input:focus ~ .gate-input-icon{color:var(--cyber);}
+
+  .gate-eye{
+    position:absolute;
+    right:6px;
+    top:50%;
+    transform:translateY(-50%);
+    width:32px;height:32px;
+    border:0;
+    background:transparent;
+    color:var(--muted);
+    cursor:pointer;
+    border-radius:4px;
+    font-size:12px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:color .2s ease, background .15s ease;
+  }
+  .gate-eye:hover{color:var(--cyber);background:var(--cyber-glow-faint);}
+
+  .gate-btn{
+    width:100%;
+    padding:13px 18px;
+    border:0;
+    border-radius:var(--r);
+    background:linear-gradient(135deg, var(--cyber), var(--cyber-d));
+    color:#fff;
+    font-size:14px;
+    font-weight:700;
+    font-family:inherit;
+    letter-spacing:.04em;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:9px;
+    transition:transform .18s ease, box-shadow .3s ease, filter .2s ease;
+    box-shadow:0 6px 20px -8px var(--cyber-glow);
+    -webkit-tap-highlight-color:transparent;
+  }
+  .gate-btn:hover{
+    filter:brightness(1.06);
+    box-shadow:0 10px 28px -10px var(--cyber-glow), 0 0 0 1px var(--cyber-glow-soft);
+    transform:translateY(-1px);
+  }
+  .gate-btn:active{transform:translateY(0);}
+  .gate-btn:disabled{
+    opacity:.6;
+    cursor:not-allowed;
+    transform:none;
+  }
+
+  .gate-msg{
+    min-height:20px;
+    margin-top:12px;
+    font-size:12px;
+    line-height:1.6;
+    color:var(--red);
+    opacity:0;
+    transition:opacity .25s ease;
+  }
+  .gate-msg.show{opacity:1;}
+  .gate-msg.ok{color:var(--cyber);}
+
+  .gate-foot{
+    margin-top:22px;
+    padding-top:16px;
+    border-top:1px solid var(--line-2);
+    font-family:var(--mono);
+    font-size:9.5px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--muted);
+    line-height:1.8;
+  }
+  .gate-foot .dot{
+    display:inline-block;
+    width:5px;height:5px;
+    border-radius:50%;
+    background:var(--cyber);
+    box-shadow:0 0 6px var(--cyber-glow);
+    margin-right:6px;
+    vertical-align:middle;
+  }
+
+  /* ================= 文档 ================= */
   .doc{
     max-width:720px;
     margin:0 auto;
@@ -1003,6 +1256,9 @@
       --sum-line:#3a1e22;
       --scroll-thumb:#3a424d;
     }
+    .gate-input.error{
+      box-shadow:0 0 0 3px rgba(230,57,70,.18);
+    }
   }
 
   /* ================= 小屏 ================= */
@@ -1017,6 +1273,7 @@
     .kpi-cell{border-right:0;border-bottom:1px solid var(--line-2);}
     .kpi-cell:last-child{border-bottom:0;}
     .adv-grid{grid-template-columns:1fr;}
+    .gate-card{padding:28px 22px 24px;}
   }
 
   @media (max-width:400px){
@@ -1037,13 +1294,46 @@
 </style>
 </head>
 <body>
+
+<!-- ================= 登录门禁 ================= -->
+<div id="loginGate" role="dialog" aria-modal="true" aria-label="访问验证">
+  <div class="gate-card">
+    <div class="gate-seal" aria-hidden="true">
+      <i class="fas fa-lock"></i>
+    </div>
+    <h2 class="gate-title">$财神到 · 内部资料</h2>
+    <p class="gate-sub">Private Access Required</p>
+
+    <div class="gate-input-wrap">
+      <input class="gate-input" id="gateInput" type="password"
+             placeholder="请输入邀请码"
+             autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
+             aria-label="邀请码">
+      <i class="fas fa-key gate-input-icon" aria-hidden="true"></i>
+      <button class="gate-eye" id="gateEye" type="button" aria-label="显示或隐藏邀请码">
+        <i class="fas fa-eye" id="gateEyeIcon" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <button class="gate-btn" id="gateBtn" type="button">
+      <i class="fas fa-door-open" aria-hidden="true"></i> 进入
+    </button>
+
+    <div class="gate-msg" id="gateMsg" role="status" aria-live="polite"></div>
+
+    <div class="gate-foot">
+      <span class="dot"></span>CONFIDENTIAL · FOR INVESTORS ONLY
+    </div>
+  </div>
+</div>
+
 <div class="doc">
 
   <!-- ================= 文件抬头 ================= -->
   <header class="wrap masthead">
     <div class="mast-row">
       <div class="mast-left">
-        <div class="eyebrow">Investment Opportunity · Confidential</div>
+        <div class="eyebrow">Private & Confidential</div>
         <h1 class="doc-title">财神到 · 投资机会说明</h1>
         <p class="doc-sub">做市 · 质押 · 现货 | 三大板块开放投资</p>
       </div>
@@ -1312,7 +1602,7 @@
     </div>
 
     <p class="prose" style="margin-bottom:18px;">
-      以下三个板块向投资人开放，总可投规模 <b>$500,000 USDC</b>。
+      以下三个板块向投资人开放，建议投入规模 <b>$500,000 USDC</b>。
       投资人可自主选择参与任一板块或组合配置，资金直接投向对应板块，收益归投资人所有。
     </p>
 
@@ -1813,6 +2103,78 @@
 
 <script>
   (function () {
+    /* ---------- 登录门禁 ---------- */
+    var GATE_CODE = 'caishen68-1';
+    var GATE_KEY = 'caishen_invest_access';
+
+    var gate = document.getElementById('loginGate');
+    var input = document.getElementById('gateInput');
+    var btn = document.getElementById('gateBtn');
+    var msg = document.getElementById('gateMsg');
+    var eye = document.getElementById('gateEye');
+    var eyeIcon = document.getElementById('gateEyeIcon');
+
+    function openGate() {
+      gate.classList.add('hidden');
+      document.body.style.overflow = '';
+      setTimeout(function () {
+        gate.setAttribute('hidden', 'hidden');
+      }, 400);
+    }
+
+    function showMsg(text, ok) {
+      msg.textContent = text;
+      msg.classList.add('show');
+      msg.classList.toggle('ok', !!ok);
+    }
+
+    function unlock() {
+      var val = (input.value || '').trim();
+      if (val === GATE_CODE) {
+        showMsg('验证通过 · 正在进入…', true);
+        btn.disabled = true;
+        input.classList.remove('error');
+        try { localStorage.setItem(GATE_KEY, '1'); } catch (e) {}
+        setTimeout(openGate, 500);
+      } else {
+        input.classList.remove('error');
+        void input.offsetWidth;
+        input.classList.add('error');
+        showMsg('邀请码错误，请重新输入', false);
+        input.select();
+      }
+    }
+
+    /* 隐藏 / 显示邀请码 */
+    if (eye) {
+      eye.addEventListener('click', function () {
+        var isPwd = input.type === 'password';
+        input.type = isPwd ? 'text' : 'password';
+        eyeIcon.className = isPwd ? 'fas fa-eye-slash' : 'fas fa-eye';
+        input.focus();
+      });
+    }
+
+    btn.addEventListener('click', unlock);
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); unlock(); }
+    });
+    input.addEventListener('input', function () {
+      input.classList.remove('error');
+      msg.classList.remove('show');
+    });
+
+    /* 已通过则直接进入 */
+    var passed = false;
+    try { passed = localStorage.getItem(GATE_KEY) === '1'; } catch (e) {}
+    if (passed) {
+      gate.classList.add('hidden');
+      gate.setAttribute('hidden', 'hidden');
+    } else {
+      document.body.style.overflow = 'hidden';
+      setTimeout(function () { input.focus(); }, 350);
+    }
+
     /* ---------- 合约地址复制 ---------- */
     var caBtn = document.getElementById('caCopyBtn');
     if (caBtn) {
