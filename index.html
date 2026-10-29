@@ -1601,7 +1601,7 @@ footer::before{
     <button type="button" class="btn btn-primary" id="rs-copy">复制 JSON</button>
     <button type="button" class="btn" id="rs-export">导出文件</button>
     <button type="button" class="btn" id="rs-import">导入 JSON</button>
-    <button type="button" class="btn btn-danger" id="rs-reset">清空全部</button>
+    <button type="button" class="btn btn-danger" id="rs-reset" style="display:none;">清空全部</button>
   </div>
 
   <p class="rs-hint" id="rs-hint" role="status" aria-live="polite"></p>
@@ -1609,7 +1609,9 @@ footer::before{
   <p class="rs-sync" id="rs-client" style="opacity:.6;font-size:11.5px;"></p>
 
   <div class="rs-empty">
-    存储说明：数据自动同步至 Supabase 数据库，同时保留在浏览器 <code>localStorage</code> 中作为离线备份。
+    存储说明：数据自动同步至 Supabase 数据库，同时保留在浏览器 <code>localStorage</code> 中作为离线备份。<br>
+    修改已填内容：点开对应项目直接编辑即可，输入后自动保存。<br>
+    管理端查看全部客户回复：在网址后加 <code>?admin=1</code> 重新打开本页（只读模式）。
   </div>
 
   <input type="file" id="rs-file" accept="application/json,.json" hidden>
@@ -1713,7 +1715,7 @@ footer::before{
   window.addEventListener('resize', onScroll);
 
   /* ============================================================
-     二、Supabase 配置（已配置完成）
+     二、Supabase 配置
      ============================================================ */
   var SUPABASE_URL  = 'https://lhzstqpyjficpgidfdwb.supabase.co';
   var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxoenN0cXB5amZpY3BnaWRmZHdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMxNzk1NzMsImV4cCI6MjEwODc1NTU3M30.Wl333RnFXB48Ed2HJExuAdlVmnOci5UW3ej4ZVD816I';
@@ -1777,7 +1779,6 @@ footer::before{
     catch (e) { canPersist = false; return false; }
   }
 
-  /* ---------- Supabase 请求头 ---------- */
   function supaHeaders(extra) {
     var h = {
       'apikey': SUPABASE_ANON,
@@ -1788,7 +1789,7 @@ footer::before{
   }
 
   /* ---------- 单条写入 / 删除（防抖批量） ---------- */
-  var pendingPush = {};   // id -> true，表示需要重新 upsert 或 delete
+  var pendingPush = {};
   var pushTimer = null;
 
   function syncPush(id) {
@@ -1861,7 +1862,7 @@ footer::before{
       });
   }
 
-  /* ---------- 清空全部（删除本 client 的所有行） ---------- */
+  /* ---------- 清空全部（隐藏按钮，逻辑保留以防误调） ---------- */
   function syncClearAll() {
     setSyncState('', '正在清空云端…');
     return fetch(
@@ -1879,7 +1880,7 @@ footer::before{
       });
   }
 
-  /* ---------- 全量导入（把本地 store 全部推上去） ---------- */
+  /* ---------- 全量导入 ---------- */
   function syncPushAll() {
     var rows = Object.keys(store.answers)
       .filter(function (k) {
@@ -1942,7 +1943,6 @@ footer::before{
           var local = store.answers[id];
           var remoteAt = row.updated_at ? new Date(row.updated_at).getTime() : 0;
           var localAt = local && local.updatedAt ? new Date(local.updatedAt).getTime() : 0;
-          /* 管理端只看最新一条；普通模式按时间优先 */
           if (!local || remoteAt >= localAt) {
             store.answers[id] = { text: row.answer, updatedAt: row.updated_at };
             merged++;
@@ -1980,8 +1980,8 @@ footer::before{
      三、收集待确认项元信息
      ============================================================ */
   var pendings = Array.prototype.slice.call(document.querySelectorAll('.pending'));
-  var meta = {};          // id -> { id, title, locations: [] }
-  var order = [];         // 按出现顺序的 id 列表
+  var meta = {};
+  var order = [];
 
   pendings.forEach(function (el) {
     var ttlEl = el.querySelector('.ttl');
@@ -2133,7 +2133,7 @@ footer::before{
     persist();
     refreshAll(id);
     updateSummary();
-    syncPush(id);           // 触发云端同步
+    syncPush(id);
   }
 
   function refreshAll(id) {
@@ -2322,7 +2322,7 @@ footer::before{
             persist();
             refreshAllIds();
             updateSummary();
-            syncPushAll();                          // 导入后同步云端
+            syncPushAll();
             hint('已导入 ' + count + ' 条回复（同编号已覆盖）');
           }
         } catch (e) {
@@ -2338,7 +2338,7 @@ footer::before{
     });
   }
 
-  /* 清空全部 */
+  /* 清空全部（按钮已隐藏，逻辑保留以防误调） */
   var resetBtn = document.getElementById('rs-reset');
   if (resetBtn) {
     resetBtn.addEventListener('click', function () {
@@ -2352,7 +2352,7 @@ footer::before{
       persist();
       refreshAllIds();
       updateSummary();
-      syncClearAll();                              // 清空云端
+      syncClearAll();
       hint('已清空全部回复');
     });
   }
@@ -2364,7 +2364,7 @@ footer::before{
   refreshAllIds();
   updateSummary();
   onScroll();
-  syncPull();          // 启动时从 Supabase 拉取
+  syncPull();
 
   if (!canPersist) {
     hint('当前浏览器无法持久化存储，请使用「导出文件」及时备份', 'err');
