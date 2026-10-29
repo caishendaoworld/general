@@ -590,6 +590,10 @@ table.wide tr.total td:first-child{background:var(--total-bg);}
   box-shadow:0 0 0 3px rgba(53,179,164,.18);
   box-shadow:0 0 0 3px color-mix(in srgb,var(--brand-3) 20%,transparent);
 }
+.reply-body textarea[readonly]{
+  cursor:default;
+  background:var(--surface-2);
+}
 
 .reply-meta{
   display:flex;align-items:center;justify-content:space-between;
@@ -1602,9 +1606,11 @@ footer::before{
 
   <p class="rs-hint" id="rs-hint" role="status" aria-live="polite"></p>
   <p class="rs-sync" id="rs-sync">检测服务器中…</p>
+  <p class="rs-sync" id="rs-client" style="opacity:.6;font-size:11.5px;"></p>
 
   <div class="rs-empty">
-    存储说明：数据自动同步至 Supabase 数据库，同时保留在浏览器 <code>localStorage</code> 中作为离线备份。
+    存储说明：数据自动同步至 Supabase 数据库，同时保留在浏览器 <code>localStorage</code> 中作为离线备份。<br>
+    管理端查看全部客户回复：在网址后加 <code>?admin=1</code> 重新打开本页（只读模式）。
   </div>
 
   <input type="file" id="rs-file" accept="application/json,.json" hidden>
@@ -1732,6 +1738,22 @@ footer::before{
   }
   var CLIENT_ID = getClientId();
 
+  /* 管理端模式：URL 带 ?admin=1 时拉取全部客户数据，只读展示 */
+  var IS_ADMIN = false;
+  try {
+    IS_ADMIN = new URLSearchParams(location.search).get('admin') === '1';
+  } catch (e) {}
+
+  /* 显示 client_id，便于与数据库核对 */
+  (function showClientId() {
+    var el = document.getElementById('rs-client');
+    if (!el) return;
+    el.textContent =
+      (IS_ADMIN ? '【管理端模式 · 只读查看全部】' : '') +
+      '本机 client_id：' + CLIENT_ID +
+      '（更换设备或清缓存后会变，云端记录将查不到）';
+  })();
+
   var syncEl = document.getElementById('rs-sync');
   function setSyncState(type, msg) {
     if (!syncEl) return;
@@ -1813,7 +1835,9 @@ footer::before{
             }),
             body: JSON.stringify(upserts)
           }
-        ).then(function (r) { if (!r.ok) throw new Error(r.status); })
+        ).then(function (r) {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+        })
       );
     }
 
@@ -1824,13 +1848,18 @@ footer::before{
           '?client_id=eq.' + encodeURIComponent(CLIENT_ID) +
           '&pending_id=eq.' + encodeURIComponent(id),
           { method: 'DELETE', headers: supaHeaders({ 'Prefer': 'return=minimal' }) }
-        ).then(function (r) { if (!r.ok) throw new Error(r.status); })
+        ).then(function (r) {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+        })
       );
     });
 
     Promise.all(jobs)
       .then(function () { setSyncState('ok', '已同步到 Supabase · ' + timeStr()); })
-      .catch(function () { setSyncState('err', '本地已保存，云端同步失败'); });
+      .catch(function (err) {
+        console.error('[flushPush]', err);
+        setSyncState('err', '本地已保存，云端同步失败：' + (err && err.message ? err.message : err));
+      });
   }
 
   /* ---------- 清空全部（删除本 client 的所有行） ---------- */
@@ -1841,8 +1870,14 @@ footer::before{
       '?client_id=eq.' + encodeURIComponent(CLIENT_ID),
       { method: 'DELETE', headers: supaHeaders({ 'Prefer': 'return=minimal' }) }
     )
-      .then(function (r) { if (!r.ok) throw new Error(r.status); setSyncState('ok', '云端已清空'); })
-      .catch(function () { setSyncState('err', '云端清空失败，本地已清空'); });
+      .then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        setSyncState('ok', '云端已清空');
+      })
+      .catch(function (err) {
+        console.error('[syncClearAll]', err);
+        setSyncState('err', '云端清空失败，本地已清空');
+      });
   }
 
   /* ---------- 全量导入（把本地 store 全部推上去） ---------- */
@@ -1868,21 +1903,37 @@ footer::before{
         body: JSON.stringify(rows)
       }
     )
-      .then(function (r) { if (!r.ok) throw new Error(r.status); setSyncState('ok', '全部已同步 · ' + timeStr()); })
-      .catch(function () { setSyncState('err', '全部同步失败'); });
+      .then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        setSyncState('ok', '全部已同步 · ' + timeStr());
+      })
+      .catch(function (err) {
+        console.error('[syncPushAll]', err);
+        setSyncState('err', '全部同步失败：' + (err && err.message ? err.message : err));
+      });
   }
 
   /* ---------- 启动时拉取 ---------- */
   function syncPull() {
-    setSyncState('', '正在连接 Supabase…');
+    setSyncState('', IS_ADMIN ? '正在连接 Supabase（管理端）…' : '正在连接 Supabase…');
+
+    var query = IS_ADMIN
+      ? '?select=client_id,pending_id,answer,updated_at&order=updated_at.desc'
+      : '?client_id=eq.' + encodeURIComponent(CLIENT_ID) +
+        '&select=pending_id,answer,updated_at';
+
     return fetch(
-      SUPABASE_URL + '/rest/v1/' + TABLE +
-      '?client_id=eq.' + encodeURIComponent(CLIENT_ID) +
-      '&select=pending_id,answer,updated_at',
+      SUPABASE_URL + '/rest/v1/' + TABLE + query,
       { headers: supaHeaders(), cache: 'no-store' }
     )
       .then(function (r) {
-        if (!r.ok) throw new Error(r.status);
+        if (r.status === 401 || r.status === 403) {
+          throw new Error('权限不足 ' + r.status + '：Supabase 的 RLS 未开放 SELECT 策略');
+        }
+        if (r.status === 400) {
+          throw new Error('请求被拒 400：表结构或 select 列名不匹配（检查 pending_id/answer/updated_at）');
+        }
+        if (!r.ok) throw new Error('HTTP ' + r.status);
         return r.json();
       })
       .then(function (rows) {
@@ -1892,6 +1943,7 @@ footer::before{
           var local = store.answers[id];
           var remoteAt = row.updated_at ? new Date(row.updated_at).getTime() : 0;
           var localAt = local && local.updatedAt ? new Date(local.updatedAt).getTime() : 0;
+          /* 管理端只看最新一条；普通模式按时间优先 */
           if (!local || remoteAt >= localAt) {
             store.answers[id] = { text: row.answer, updatedAt: row.updated_at };
             merged++;
@@ -1900,10 +1952,15 @@ footer::before{
         persist();
         refreshAllIds();
         updateSummary();
-        setSyncState('ok', rows && rows.length ? ('已从 Supabase 载入 ' + merged + ' 条') : '服务器暂无记录，本地草稿已就绪');
+        if (rows && rows.length) {
+          setSyncState('ok', '已从 Supabase 载入 ' + merged + ' 条' + (IS_ADMIN ? '（管理端全量）' : ''));
+        } else {
+          setSyncState('err', '云端返回 0 条：可能是 RLS 未开放 SELECT，或本 client_id 尚无记录');
+        }
       })
-      .catch(function () {
-        setSyncState('err', '未连接 Supabase，当前仅本地保存');
+      .catch(function (err) {
+        console.error('[syncPull]', err);
+        setSyncState('err', '云端读取失败：' + (err && err.message ? err.message : err));
       });
   }
 
@@ -2000,6 +2057,18 @@ footer::before{
     }
     updateWrap(wrap, ta.value, ans && ans.updatedAt);
 
+    /* 管理端：只读展示，防止误编辑覆盖他人数据 */
+    if (IS_ADMIN) {
+      ta.setAttribute('readonly', 'readonly');
+      savedEl.textContent = '只读查看（管理端）';
+      clearBtn.style.display = 'none';
+      bar.addEventListener('click', function () {
+        var open = wrap.classList.toggle('open');
+        bar.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+      return;
+    }
+
     bar.addEventListener('click', function () {
       var open = wrap.classList.toggle('open');
       bar.setAttribute('aria-expanded', open ? 'true' : 'false');
@@ -2041,17 +2110,17 @@ footer::before{
     var savedEl = wrap.querySelector('.reply-saved');
 
     if (has) {
-      textEl.textContent = '已回复 · 点击展开编辑';
+      textEl.textContent = '已回复 · 点击展开' + (IS_ADMIN ? '查看' : '编辑');
       badge.textContent = '已填写';
       preview.textContent = text.replace(/\s+/g, ' ').trim();
       if (savedEl && updatedAt) {
-        savedEl.textContent = '已保存 · ' + timeStr(new Date(updatedAt));
+        savedEl.textContent = (IS_ADMIN ? '云端更新 · ' : '已保存 · ') + timeStr(new Date(updatedAt));
       }
     } else {
-      textEl.textContent = '回复此项';
+      textEl.textContent = IS_ADMIN ? '暂无回复' : '回复此项';
       badge.textContent = '未填写';
       preview.textContent = '';
-      if (savedEl) savedEl.textContent = '输入后自动保存';
+      if (savedEl) savedEl.textContent = IS_ADMIN ? '只读查看（管理端）' : '输入后自动保存';
     }
   }
 
@@ -2203,7 +2272,10 @@ footer::before{
   var importBtn = document.getElementById('rs-import');
   var fileInput = document.getElementById('rs-file');
   if (importBtn && fileInput) {
-    importBtn.addEventListener('click', function () { fileInput.click(); });
+    importBtn.addEventListener('click', function () {
+      if (IS_ADMIN) { hint('管理端为只读模式，不能导入', 'err'); return; }
+      fileInput.click();
+    });
 
     fileInput.addEventListener('change', function () {
       var f = fileInput.files && fileInput.files[0];
@@ -2271,6 +2343,7 @@ footer::before{
   var resetBtn = document.getElementById('rs-reset');
   if (resetBtn) {
     resetBtn.addEventListener('click', function () {
+      if (IS_ADMIN) { hint('管理端为只读模式，不能清空', 'err'); return; }
       if (!answeredIds().length) {
         hint('当前没有已填写的回复');
         return;
