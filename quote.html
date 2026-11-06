@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0b1219" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#0b5d5a" media="(prefers-color-scheme: light)">
+<title>四池架构 DeFi 协议 · 技术开发报价单</title>
+<style>
+/* ============================================================
+   设计令牌
+   ============================================================ */
+:root{
+  --bg:#eef2f6;
+  --surface:#ffffff;
+  --surface-2:#f6f9fb;
+  --ink:#131f2d;
+  --ink-2:#4c5e73;
+  --ink-3:#8496a9;
+  --line:#e2e9f0;
+  --line-2:#d3dee8;
+
+  --brand:#0b5d5a;
+  --brand-2:#0f8a80;
+  --brand-3:#35b3a4;
+  --brand-soft:#e8f6f4;
+  --brand-ink:#07403f;
+
+  --accent:#c2410c;
+  --accent-2:#ea580c;
+  --accent-bg:#fff5ec;
+  --accent-line:#fdc9a0;
+  --accent-ink:#8a3410;
+
+  --th-bg:#e9f0f5;
+  --row-even:#fafcfd;
+  --total-bg:#e9f4f2;
+
+  --shadow:0 1px 2px rgba(13,32,56,.05), 0 12px 32px -20px rgba(13,32,56,.35);
+  --shadow-sm:0 1px 2px rgba(13,32,56,.05), 0 4px 14px -12px rgba(13,32,56,.35);
+
+  --radius:16px;
+  --radius-sm:12px;
+  --ease:cubic-bezier(.22,.61,.36,1);
+}
+
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0b1219;
+    --surface:#141e28;
+    --surface-2:#18242f;
+    --ink:#e8eff6;
+    --ink-2:#a3b4c6;
+    --ink-3:#6d8095;
+    --line:#243240;
+    --line-2:#30404f;
+
+    --brand:#2fbfb1;
+    --brand-2:#23a598;
+    --brand-3:#4fd0c1;
+    --brand-soft:#0f2b2a;
+    --brand-ink:#8fe8dd;
+
+    --accent:#f59e0b;
+    --accent-2:#fbbf24;
+    --accent-bg:#261b0b;
+    --accent-line:#5f3d11;
+    --accent-ink:#fcd34d;
+
+    --th-bg:#1c2a37;
+    --row-even:#16222d;
+    --total-bg:#11302d;
+
+    --shadow:0 1px 2px rgba(0,0,0,.35), 0 16px 40px -22px rgba(0,0,0,.9);
+    --shadow-sm:0 1px 2px rgba(0,0,0,.35), 0 6px 18px -14px rgba(0,0,0,.8);
+  }
+}
+
+/* ============================================================
+   基础
+   ============================================================ */
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html{
+  -webkit-text-size-adjust:100%;
+  scroll-behavior:smooth;
+  scroll-padding-top:72px;
+}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",sans-serif;
+  font-size:15px;
+  line-height:1.78;
+  letter-spacing:.005em;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  padding-bottom:calc(56px + env(safe-area-inset-bottom));
+  overflow-x:hidden;
+}
+
+b,strong,td,th,.num{font-variant-numeric:tabular-nums;}
+
+p{margin:9px 0;}
+ul,ol{margin:9px 0;padding-left:20px;}
+li{margin:6px 0;}
+li::marker{color:var(--brand-2);font-weight:600;}
+strong{color:var(--brand-ink);font-weight:700;}
+em{font-style:normal;color:var(--brand-2);font-weight:600;}
+hr{border:none;border-top:1px dashed var(--line);margin:18px 0;}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto;}
+  *,*::before,*::after{animation:none!important;transition:none!important;}
+}
+
+/* ============================================================
+   阅读进度条
+   ============================================================ */
+.progress{
+  position:fixed;top:0;left:0;
+  height:3px;width:0%;
+  z-index:200;
+  background:linear-gradient(90deg,var(--brand-3),var(--brand-2));
+  box-shadow:0 0 12px rgba(53,179,164,.55);
+  transition:width .08s linear;
+  pointer-events:none;
+}
+
+/* ============================================================
+   头部 Hero
+   ============================================================ */
+.hero{
+  position:relative;
+  overflow:hidden;
+  color:#fff;
+  padding:calc(30px + env(safe-area-inset-top)) 20px 28px;
+  background:
+    radial-gradient(120% 90% at 12% 0%, rgba(53,179,164,.55) 0%, transparent 55%),
+    radial-gradient(90% 70% at 100% 110%, rgba(15,138,128,.5) 0%, transparent 60%),
+    linear-gradient(155deg,#07242b 0%,#0b4a4b 48%,#0d6b66 100%);
+}
+.hero::after{
+  content:"";
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);
+  background-size:38px 38px;
+  mask-image:radial-gradient(120% 80% at 50% 0%,#000 30%,transparent 78%);
+  pointer-events:none;
+}
+.hero>*{position:relative;z-index:1;}
+
+.tag{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:11.5px;font-weight:600;letter-spacing:.1em;
+  padding:5px 11px;border-radius:999px;
+  background:rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.26);
+  backdrop-filter:blur(6px);
+  margin-bottom:14px;
+}
+.tag::before{
+  content:"";
+  width:6px;height:6px;border-radius:50%;
+  background:#5fe3cf;
+  box-shadow:0 0 0 3px rgba(95,227,207,.22);
+  animation:pulse 2.4s ease-in-out infinite;
+}
+@keyframes pulse{
+  0%,100%{box-shadow:0 0 0 3px rgba(95,227,207,.22);}
+  50%{box-shadow:0 0 0 6px rgba(95,227,207,.08);}
+}
+
+.hero h1{
+  margin:0 0 10px;
+  font-size:clamp(21px,6.2vw,28px);
+  line-height:1.34;
+  font-weight:800;
+  letter-spacing:-.01em;
+  text-shadow:0 2px 24px rgba(0,0,0,.22);
+}
+.hero .sub{
+  margin:0 0 18px;
+  font-size:13.5px;
+  line-height:1.72;
+  color:rgba(255,255,255,.8);
+  max-width:34em;
+}
+
+.chips{
+  display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px;
+}
+.chips span{
+  font-size:12px;font-weight:500;
+  padding:5px 11px;border-radius:8px;
+  background:rgba(255,255,255,.1);
+  border:1px solid rgba(255,255,255,.16);
+  color:rgba(255,255,255,.94);
+  backdrop-filter:blur(4px);
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  padding-top:16px;
+  border-top:1px solid rgba(255,255,255,.16);
+}
+.stat{text-align:center;padding:2px 2px;}
+.stat b{
+  display:block;
+  font-size:clamp(16px,4.8vw,22px);
+  font-weight:800;
+  line-height:1.15;
+  letter-spacing:-.02em;
+  color:#fff;
+}
+.stat span{
+  display:block;
+  margin-top:3px;
+  font-size:10.5px;
+  letter-spacing:.04em;
+  color:rgba(255,255,255,.68);
+}
+
+/* ============================================================
+   顶部章节导航
+   ============================================================ */
+.toc{
+  position:sticky;top:0;z-index:100;
+  display:flex;gap:8px;
+  overflow-x:auto;
+  padding:10px 14px;
+  background:var(--bg);
+  background:color-mix(in srgb,var(--bg) 88%,transparent);
+  -webkit-backdrop-filter:blur(14px) saturate(1.4);
+  backdrop-filter:blur(14px) saturate(1.4);
+  border-bottom:1px solid var(--line);
+  scrollbar-width:none;
+  scroll-behavior:smooth;
+  mask-image:linear-gradient(90deg,transparent 0,#000 16px,#000 calc(100% - 16px),transparent 100%);
+}
+.toc::-webkit-scrollbar{display:none;}
+.toc a{
+  flex:0 0 auto;
+  font-size:13px;font-weight:500;
+  line-height:1;
+  padding:10px 14px;
+  border-radius:999px;
+  background:var(--surface);
+  border:1px solid var(--line);
+  color:var(--ink-2);
+  text-decoration:none;
+  white-space:nowrap;
+  transition:background .2s var(--ease),color .2s var(--ease),border-color .2s var(--ease),transform .2s var(--ease);
+  box-shadow:var(--shadow-sm);
+}
+.toc a:active{transform:scale(.96);}
+.toc a.active{
+  background:linear-gradient(135deg,var(--brand-2),var(--brand));
+  border-color:transparent;
+  color:#fff;
+  font-weight:700;
+  box-shadow:0 4px 14px -6px var(--brand);
+}
+
+/* ============================================================
+   主体
+   ============================================================ */
+main{
+  max-width:820px;
+  margin:0 auto;
+  padding:0 14px;
+}
+
+section{
+  position:relative;
+  overflow:hidden;
+  background:var(--surface);
+  border-radius:var(--radius);
+  padding:18px 16px 20px;
+  margin:14px 0;
+  box-shadow:var(--shadow);
+  scroll-margin-top:72px;
+}
+section::after{
+  content:attr(data-chap);
+  position:absolute;
+  top:2px;right:10px;
+  font-size:52px;
+  font-weight:800;
+  line-height:1;
+  letter-spacing:-.04em;
+  color:var(--ink);
+  opacity:.035;
+  pointer-events:none;
+  user-select:none;
+}
+
+.js section.reveal{
+  opacity:0;
+  transform:translateY(16px);
+  transition:opacity .5s var(--ease),transform .5s var(--ease);
+  will-change:opacity,transform;
+}
+.js section.reveal.in{
+  opacity:1;
+  transform:none;
+}
+
+h2{
+  display:flex;align-items:center;gap:11px;
+  font-size:clamp(16.5px,4.6vw,19px);
+  font-weight:800;
+  line-height:1.42;
+  letter-spacing:-.005em;
+  margin:0 0 16px;
+  color:var(--brand-ink);
+}
+h2::before{
+  content:"";
+  flex:0 0 auto;
+  width:4px;height:19px;
+  border-radius:3px;
+  background:linear-gradient(180deg,var(--brand-3),var(--brand));
+  box-shadow:0 0 10px -2px var(--brand-3);
+}
+
+h3{
+  font-size:15.5px;
+  font-weight:700;
+  line-height:1.5;
+  margin:22px 0 9px;
+  color:var(--ink);
+}
+h3:first-of-type{margin-top:2px;}
+
+h4{
+  font-size:14px;
+  font-weight:700;
+  margin:16px 0 7px;
+  color:var(--ink-2);
+}
+
+/* ============================================================
+   表格
+   ============================================================ */
+.tw{
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+  margin:13px -16px;
+  padding:0 16px 6px;
+  scrollbar-width:thin;
+  scrollbar-color:var(--line-2) transparent;
+}
+.tw::-webkit-scrollbar{height:5px;}
+.tw::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:99px;}
+.tw::-webkit-scrollbar-track{background:transparent;}
+
+table{
+  border-collapse:separate;
+  border-spacing:0;
+  width:100%;
+  font-size:13.5px;
+  line-height:1.62;
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:11px;
+  overflow:hidden;
+}
+table.wide{min-width:600px;}
+
+th,td{
+  padding:10px 11px;
+  text-align:left;
+  vertical-align:top;
+  border-bottom:1px solid var(--line);
+}
+thead th{
+  background:var(--th-bg);
+  color:var(--ink);
+  font-weight:700;
+  font-size:12.5px;
+  letter-spacing:.01em;
+  white-space:nowrap;
+  border-bottom:1px solid var(--line-2);
+}
+tbody td:first-child{
+  font-weight:700;
+  color:var(--ink);
+}
+tbody tr:nth-child(even){background:var(--row-even);}
+tbody tr:last-child td{border-bottom:none;}
+
+tr.total td{
+  background:var(--total-bg);
+  font-weight:800;
+  color:var(--brand-ink);
+  border-top:1px solid var(--line-2);
+}
+
+.num{white-space:nowrap;}
+.price{font-weight:800;color:var(--accent-ink);white-space:nowrap;}
+
+table.wide th:first-child{
+  position:sticky;left:0;z-index:3;
+  background:var(--th-bg);
+  box-shadow:1px 0 0 var(--line-2);
+}
+table.wide td:first-child{
+  position:sticky;left:0;z-index:2;
+  background:var(--surface);
+  box-shadow:1px 0 0 var(--line);
+}
+table.wide tbody tr:nth-child(even) td:first-child{background:var(--row-even);}
+table.wide tr.total td:first-child{background:var(--total-bg);}
+
+/* ============================================================
+   提示块
+   ============================================================ */
+.note{
+  margin:13px 0;
+  padding:12px 14px;
+  background:var(--brand-soft);
+  border-radius:var(--radius-sm);
+  font-size:13.5px;
+  line-height:1.74;
+  color:var(--brand-ink);
+  border-left:3px solid var(--brand-3);
+}
+.note strong{color:var(--brand-ink);}
+
+.note.warn{
+  background:var(--accent-bg);
+  border-left-color:var(--accent-2);
+  color:var(--accent-ink);
+}
+.note.warn strong{color:var(--accent-ink);}
+
+/* ============================================================
+   原则清单
+   ============================================================ */
+.principles{
+  counter-reset:p;
+  list-style:none;
+  padding:0;
+  margin:12px 0;
+}
+.principles li{
+  counter-increment:p;
+  position:relative;
+  padding:11px 13px 11px 44px;
+  margin:9px 0;
+  background:var(--surface-2);
+  border:1px solid var(--line);
+  border-radius:var(--radius-sm);
+  font-size:14px;
+  line-height:1.66;
+  transition:border-color .2s var(--ease),transform .2s var(--ease);
+}
+.principles li:active{transform:scale(.995);}
+.principles li::before{
+  content:counter(p);
+  position:absolute;
+  left:11px;top:11px;
+  width:23px;height:23px;
+  border-radius:50%;
+  background:linear-gradient(135deg,var(--brand-2),var(--brand));
+  color:#fff;
+  font-size:11.5px;
+  font-weight:800;
+  display:flex;align-items:center;justify-content:center;
+  line-height:1;
+  box-shadow:0 3px 9px -4px var(--brand);
+}
+
+/* ============================================================
+   页脚
+   ============================================================ */
+footer{
+  max-width:820px;
+  margin:26px auto 0;
+  padding:0 20px;
+  text-align:center;
+  font-size:12px;
+  line-height:1.85;
+  color:var(--ink-3);
+}
+footer::before{
+  content:"";
+  display:block;
+  width:44px;height:2px;
+  margin:0 auto 16px;
+  border-radius:2px;
+  background:linear-gradient(90deg,transparent,var(--line-2),transparent);
+}
+
+/* ============================================================
+   回到顶部
+   ============================================================ */
+.totop{
+  position:fixed;
+  right:16px;
+  bottom:calc(20px + env(safe-area-inset-bottom));
+  z-index:120;
+  width:46px;height:46px;
+  display:flex;align-items:center;justify-content:center;
+  border:none;
+  border-radius:50%;
+  background:var(--surface);
+  color:var(--brand);
+  box-shadow:0 4px 12px rgba(13,32,56,.14),0 14px 30px -14px rgba(13,32,56,.5);
+  border:1px solid var(--line);
+  cursor:pointer;
+  opacity:0;
+  transform:translateY(14px) scale(.9);
+  pointer-events:none;
+  transition:opacity .28s var(--ease),transform .28s var(--ease),background .2s;
+}
+.totop.show{
+  opacity:1;
+  transform:none;
+  pointer-events:auto;
+}
+.totop:active{transform:scale(.92);background:var(--brand-soft);}
+.totop svg{width:20px;height:20px;stroke-width:2.4;}
+
+/* ============================================================
+   桌面端
+   ============================================================ */
+@media (min-width:640px){
+  body{font-size:15.5px;line-height:1.8;}
+  .hero{padding:44px 34px 34px;}
+  .hero .sub{font-size:14.5px;}
+  main{padding:0 20px;}
+  section{padding:24px 26px 26px;margin:18px 0;}
+  .tw{margin:14px 0;padding:0 0 4px;}
+  h2{font-size:19.5px;}
+  table{font-size:14px;}
+  th,td{padding:11px 13px;}
+  .totop{right:28px;bottom:28px;}
+}
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<!-- ==================== 头部 ==================== -->
+<header class="hero">
+  <span class="tag">技术开发报价单</span>
+  <h1>四池架构 DeFi 协议 · 技术开发报价单</h1>
+  <p class="sub">四池分离 + 两个自动阀门 + AMM 市场自由交易 + 自由退出 + 协议资产三账分离 + 用户端 UI 视觉设计（仅两版）</p>
+
+  <div class="chips">
+    <span>BNB Smart Chain（BSC）</span>
+    <span>BSC 节点 RPC API</span>
+    <span>智能合约</span>
+    <span>管理后台</span>
+    <span>用户端 UI 设计</span>
+    <span>3 周工期</span>
+    <span>运维托管</span>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><b>$15,000</b><span>开发总价 USD</span></div>
+    <div class="stat"><b>3 周</b><span>开发工期</span></div>
+    <div class="stat"><b>12</b><span>交付模块</span></div>
+    <div class="stat"><b>50/50</b><span>付款节奏</span></div>
+  </div>
+</header>
+
+<!-- ==================== 章节导航 ==================== -->
+<nav class="toc" id="toc" aria-label="章节导航">
+  <a href="#s1">报价摘要</a>
+  <a href="#s2">报价明细</a>
+  <a href="#s3">工期里程碑</a>
+  <a href="#s4">付款方式</a>
+  <a href="#s5">运维费用</a>
+  <a href="#s6">交付物</a>
+  <a href="#s7">技术栈</a>
+  <a href="#s8">不含范围</a>
+  <a href="#s9">假设前提</a>
+  <a href="#s10">变更验收</a>
+  <a href="#s11">报价说明</a>
+</nav>
+
+<main>
+
+<!-- ============ 一 ============ -->
+<section id="s1" data-chap="01">
+  <h2>一、报价摘要</h2>
+
+  <p>本报价单针对 <strong>四池架构 DeFi 协议</strong> 的一期技术开发交付，范围包含智能合约体系、管理后台与数据看板、用户端前端 UI 视觉设计、测试与主网部署、以及配套交付文档。</p>
+
+  <div class="tw">
+    <table class="wide">
+      <thead>
+        <tr><th>项目</th><th>内容</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>项目名称</td><td>四池架构 DeFi 协议（云矿池 / LP底池 / Treasury 平衡池 / 保障保险池）</td></tr>
+        <tr><td>部署链</td><td><strong>BNB Smart Chain（BSC）单链部署</strong>；测试网使用 BSC Testnet</td></tr>
+        <tr><td>开发范围</td><td>智能合约 + 管理后台 + 数据看板 + 用户端前端 UI 视觉设计（仅两版） + 测试部署 + 交付文档</td></tr>
+        <tr><td>开发总价</td><td class="price">$15,000 USD（一次性总包价）</td></tr>
+        <tr><td>开发工期</td><td class="num">3 周（21 个自然日）</td></tr>
+        <tr><td>付款方式</td><td><strong>50% 预付</strong>（$7,500）＋ <strong>50% 交付</strong>（$7,500）</td></tr>
+        <tr><td>用户端 UI 设计</td><td>包含 <strong>2 版</strong>视觉设计稿；两版内修改；<strong>超出两版额外计费</strong></td></tr>
+        <tr><td>运维费用</td><td>服务器 + CDN + BSC 节点 RPC API：<strong>$500 / 月</strong>；基础维护（已完成事项）：<strong>$500 / 月</strong>（详见第五章）</td></tr>
+        <tr><td>紧急响应</td><td><strong>60 分钟内</strong>响应（服务时间按运维约定执行）</td></tr>
+        <tr><td>新增功能</td><td>不在开发总包与基础维护范围内，<strong>按报价为准</strong></td></tr>
+        <tr><td>报价日期</td><td class="num">2026-11-05</td></tr>
+        <tr><td>报价有效期</td><td class="num">自报价日起 30 天</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>1.1 核心交付目标</h3>
+  <ul>
+    <li><strong>四池分离</strong>：云矿池、LP 底池、Treasury／平衡池、保障／保险池职责边界清晰，互不串账；</li>
+    <li><strong>两个自动阀门</strong>：云矿池按市场状态自动调节 0.3%～1.0% 释放率；Treasury 按累计跌幅等级自动分级救市；</li>
+    <li><strong>市场自由交易</strong>：价格由 AMM 决定，不设管理员报价接口；</li>
+    <li><strong>三账分离</strong>：现金账、OS 账、矿机协议资产账独立记账，系统层面禁止一笔钱重复计算；</li>
+    <li><strong>用户端 UI 视觉设计</strong>：包含 2 版视觉设计稿，两版内修改；超出两版按变更单额外计费；</li>
+    <li><strong>BSC 单链部署</strong>：全部合约部署于 BNB Smart Chain（BSC），测试使用 BSC Testnet；运维期含 BSC 节点 RPC API；</li>
+    <li><strong>可审计</strong>：全部关键动作（释放、救市、级差结算、封顶）链上留痕并可后台对账。</li>
+  </ul>
+</section>
+
+<!-- ============ 二 ============ -->
+<section id="s2" data-chap="02">
+  <h2>二、报价明细</h2>
+
+  <p>按模块拆分，共 <strong>12 个交付模块</strong>，开发总价 <strong>$15,000 USD</strong>。下表只列模块与交付内容，不拆分单项金额。</p>
+
+  <div class="tw">
+    <table class="wide">
+      <thead>
+        <tr>
+          <th>序号</th>
+          <th>模块</th>
+          <th>主要交付内容</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>01</td>
+          <td>基础架构与合约框架</td>
+          <td>合约架构设计与接口定义；多签权限与角色分离；可升级代理；全局参数配置中心（滑点、比例、等级门槛）；合约地址管理与部署脚本框架；BSC 主网 / BSC Testnet 双环境配置</td>
+        </tr>
+        <tr>
+          <td>02</td>
+          <td>OS 代币合约</td>
+          <td>总量 21 亿、不增发（无增发函数）；标准 BEP-20 / ERC-20 兼容代币 + 铸造白名单（仅云矿池）；初始分配 LP 20,000,000 OS / Treasury 80,000,000 OS；风控预留（暂停、黑名单）</td>
+        </tr>
+        <tr>
+          <td>03</td>
+          <td>云矿池释放引擎</td>
+          <td>以 21 亿为基数的 0.3%～1.0% 动态释放率；按「昨日卖盘 / 今日入金」比值自动切换四档；静态收益与动态奖金发放执行；3X 封顶判定与停止发放；每日结算快照与释放日志</td>
+        </tr>
+        <tr>
+          <td>04</td>
+          <td>LP 底池 / AMM / 防跌滑点</td>
+          <td>初始 LP 20,000,000 OS + 100,000U；基于 BSC 的 AMM Swap 3% 费用拆分（基金会 1% / 共建者 1% / 平衡者 1%）；日跌幅动态滑点 3%→10%/12%/14%，每 +1% 递增 2%，上限 50%；24 小时周期判定与自动恢复；重购池部分自动归集</td>
+        </tr>
+        <tr>
+          <td>05</td>
+          <td>Treasury／平衡池</td>
+          <td>日涨幅 &gt;1% 自动卖出 OS 压制；卖币回流 1000U 分配（500U 购矿机 / 100U 分红 / 400U 储备）；500U 现金 → 1000U 矿机协议资产记账；累计跌幅五级救市，每次使用可用资金 5%～10%；矿机资产 3X 出局、产币留池、禁止重复分配；三账分离账本</td>
+        </tr>
+        <tr>
+          <td>06</td>
+          <td>保障／保险池</td>
+          <td>BSC 链上主流币 BTC/ETH/BNB/SOL 映射资产或指定资产采购与托管地址管理；保障资产余额与成本记账；后期未回本用户补偿计算与发放；补偿比例参数化与总上限控制</td>
+        </tr>
+        <tr>
+          <td>07</td>
+          <td>三级推荐 &amp; V1–V9 级差</td>
+          <td>三级推荐 5%/3%/2% 合计 10%，按入金 U 计算并计入 3X；V1–V9 团队业绩与区域要求判定；分区级差结算（分区静态收益 ×（本级比例 − 分区最高下级比例））；防跨区重复计算与拨比上限校验；晋升条件自动判定（2 条不同直推线）</td>
+        </tr>
+        <tr>
+          <td>08</td>
+          <td>双路径入金与账户体系</td>
+          <td>路径1 分配 50/25/10/10/2/2/1；路径2 分配 40/25/10/10/10/2/2/1；最低入金 100U、金额校验、确认失败自动退款；分批入金生成独立合约、同账号可持有多套配套；路径1 收益发币 / 路径2 收益发 SOL</td>
+        </tr>
+        <tr>
+          <td>09</td>
+          <td>收益封顶 / 复投 / 提现</td>
+          <td>USBT 稳定币收益记账与 3X 金本位封顶；60% 可换币 / 40% 游戏消费（30% 游戏 + 10% 消费）；LP 提币 5% 进重购池、平衡 U 提现 10% 进重购池；复投与权限收益联动、封顶后权限停止；1000 为 1 份的加权分红计算</td>
+        </tr>
+        <tr>
+          <td>10</td>
+          <td>管理后台 &amp; 三账对账看板</td>
+          <td>池子余额、释放率、跌幅等级、救市记录实时看板；用户、订单、收益、提现管理；现金 / OS / 矿机协议资产三账对账；审计日志与操作留痕、后台权限分级；BSC 链上事件解析与展示</td>
+        </tr>
+        <tr>
+          <td>11</td>
+          <td>用户端前端 UI 视觉设计</td>
+          <td>用户端关键页面 UI 视觉设计；提供 <strong>2 版</strong>视觉设计稿；两版内修改；<strong>超出两版额外计费</strong>；不含用户端前端功能开发与联调</td>
+        </tr>
+        <tr>
+          <td>12</td>
+          <td>测试 · 安全 · 部署 · 文档</td>
+          <td>BSC Testnet 单元测试 + 集成测试 + 全流程演练；关键路径（释放、救市、级差、封顶）边界用例；审计配合与问题修复；BSC 主网部署、参数初始化、合约地址清单；架构文档 / 接口文档 / 运维手册</td>
+        </tr>
+        <tr class="total">
+          <td>合计</td>
+          <td>12 个模块</td>
+          <td>开发总价 <span class="price">$15,000 USD</span>（一次性总包价）</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note">
+    <strong>计价口径：</strong>本报价为一次性总包价，包含第二章全部 12 个模块的开发、自测、BSC Testnet 演练、BSC 主网部署、文档交付及用户端 UI 视觉设计（仅两版）。不含第三方审计费、链上 Gas、服务器、CDN 与 BSC 节点 RPC API 等外部运营成本（相关运维费用见第五章）。用户端 UI 视觉设计超出两版的部分，按变更单额外计费。
+  </div>
+</section>
+
+<!-- ============ 三 ============ -->
+<section id="s3" data-chap="03">
+  <h2>三、开发工期与里程碑</h2>
+
+  <p>总工期 <strong>3 周（21 个自然日）</strong>，按三个阶段推进，每阶段设置一个可验收里程碑。</p>
+
+  <div class="tw">
+    <table class="wide">
+      <thead>
+        <tr><th>阶段</th><th>时间</th><th>重点内容</th><th>里程碑</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>第一周</td>
+          <td class="num">Day 1–7</td>
+          <td>需求冻结与架构设计；BSC 合约框架与权限体系；OS 代币合约；云矿池释放引擎；双路径入金与账户体系；LP / AMM 接口层；用户端 UI 视觉方向与初稿</td>
+          <td><strong>M1</strong>　合约框架 + 代币发行 + 入金分配可跑通 + UI 初稿</td>
+        </tr>
+        <tr>
+          <td>第二周</td>
+          <td class="num">Day 8–14</td>
+          <td>LP 底池与防跌滑点；Treasury 涨幅保护与卖币回流；累计跌幅五级救市；保障／保险池；三级推荐与 V1–V9 级差结算；收益封顶 / 复投 / 提现 / 重购池；用户端 UI 两版视觉定稿</td>
+          <td><strong>M2</strong>　四池与奖励体系完整闭环 + UI 两版定稿</td>
+        </tr>
+        <tr>
+          <td>第三周</td>
+          <td class="num">Day 15–21</td>
+          <td>管理后台与三账对账看板；BSC Testnet 全流程联调；测试网演练与边界用例；安全自查与审计配合；BSC 主网部署与参数初始化；文档交付与操作培训；UI 视觉稿交付</td>
+          <td><strong>M3</strong>　BSC 测试网验收 + 主网部署 + 文档与 UI 交付</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>3.1 关键时间节点</h3>
+  <ul>
+    <li><strong>Day 1：</strong>启动会，确认规则口径与最终参数表；</li>
+    <li><strong>Day 5：</strong>需求冻结（此后新增需求走变更流程）；</li>
+    <li><strong>Day 7：</strong>M1 里程碑演示；</li>
+    <li><strong>Day 14：</strong>M2 里程碑演示；</li>
+    <li><strong>Day 18：</strong>BSC Testnet 全流程演练完成，提交测试报告；</li>
+    <li><strong>Day 21：</strong>M3 交付，BSC 主网部署完成并移交文档与两版 UI 视觉稿。</li>
+  </ul>
+
+  <div class="note warn">
+    <strong>工期前提：</strong>上述工期以「需求在第 5 个工作日完成冻结、客户方在 24 小时内完成节点确认」为前提。若客户侧决策延迟或第三方依赖（价格源、审计、多签配置）未按时到位，工期相应顺延。用户端 UI 视觉设计仅包含两版，超出两版的修改或方向重做按变更流程处理。
+  </div>
+</section>
+
+<!-- ============ 四 ============ -->
+<section id="s4" data-chap="04">
+  <h2>四、付款方式</h2>
+
+  <p>采用 <strong>50% 预付 + 50% 交付</strong> 的两段式付款，与项目里程碑绑定。</p>
+
+  <div class="tw">
+    <table class="wide">
+      <thead>
+        <tr><th>节点</th><th>比例</th><th>金额</th><th>触发条件</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>预付（首款）</td>
+          <td class="num">50%</td>
+          <td class="price">$7,500</td>
+          <td>双方签署正式合同后 <strong>3 个工作日内</strong>支付，款项到账后启动开发</td>
+        </tr>
+        <tr>
+          <td>交付（尾款）</td>
+          <td class="num">50%</td>
+          <td class="price">$7,500</td>
+          <td>BSC Testnet 验收通过 + BSC 主网部署完成 + 交付文档与两版 UI 视觉稿齐备后 <strong>5 个工作日内</strong>支付</td>
+        </tr>
+        <tr class="total">
+          <td>合计</td>
+          <td class="num">100%</td>
+          <td class="price">$15,000</td>
+          <td>开发总价结清，项目进入 30 天质保答疑期</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>4.1 付款说明</h3>
+  <ul>
+    <li>付款币种：<strong>USDT</strong>（或双方另行约定的币种）；</li>
+    <li>预付到账后即锁定开发排期，未到账不占用人力档期；</li>
+    <li>尾款未结清前，源码与部署权限暂不移交，但不影响客户在 BSC Testnet 的验收；</li>
+    <li>本报价<strong>不含税</strong>，如需开具发票，税费另计；</li>
+    <li>跨境转账产生的手续费由付款方承担；</li>
+    <li>用户端 UI 视觉设计仅包含 <strong>2 版</strong>，两版内修改；超出两版额外计费；</li>
+    <li>运维费用（服务器 + CDN + BSC 节点 RPC API、基础维护）<strong>不包含在开发总价内</strong>，自交付验收通过次月起按月计费，详见第五章。</li>
+  </ul>
+
+  <div class="note">
+    <strong>质保期：</strong>尾款结清后提供 <strong>30 天</strong> 质保，期间修复交付范围内的缺陷（Bug）不额外收费；新增功能、需求变更及 UI 超出两版的修改不在质保范围内，按变更单另行报价。
+  </div>
+</section>
+
+<!-- ============ 五 ============ -->
+<section id="s5" data-chap="05">
+  <h2>五、运营与维护费用（按月）</h2>
+
+  <p>开发总价不包含生产环境运营成本。交付验收通过后，如需开发方提供运维托管，按以下标准<strong>按月计费</strong>：</p>
+
+  <div class="tw">
+    <table class="wide">
+      <thead>
+        <tr><th>项目</th><th>费用</th><th>服务内容</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>服务器 + CDN + BSC 节点 RPC API</td>
+          <td class="price">$500 / 月</td>
+          <td>生产环境服务器、CDN 加速、BSC 节点 RPC API 接入与配额、基础监控、日志与备份；保障后台与看板稳定访问及链上读写交互</td>
+        </tr>
+        <tr>
+          <td>基础维护<br>（已完成事项）</td>
+          <td class="price">$500 / 月</td>
+          <td>已交付模块的日常巡检、参数微调、缺陷修复、数据对账支持；不包含新增功能开发，也不包含 UI 超出两版的修改</td>
+        </tr>
+        <tr>
+          <td>紧急响应</td>
+          <td>包含</td>
+          <td>紧急故障响应时间 <strong>60 分钟内</strong>；响应时间按双方约定的服务时段执行</td>
+        </tr>
+        <tr>
+          <td>新增功能</td>
+          <td>按报价为准</td>
+          <td>不属于基础维护范围；新增功能、规则调整、界面改造、UI 超出两版等按变更单另行报价</td>
+        </tr>
+        <tr class="total">
+          <td>合计</td>
+          <td class="price">$1,000 / 月</td>
+          <td>服务器 + CDN + BSC 节点 RPC API $500 / 月 ＋ 基础维护 $500 / 月</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>5.1 运维计费说明</h3>
+  <ul>
+    <li>运维服务自<strong>交付验收通过次月</strong>起计费，按月预付；</li>
+    <li>首月运维费可随交付尾款一并支付，或于交付后 5 个工作日内支付；</li>
+    <li>服务器 + CDN + BSC 节点 RPC API 费用按实际提供的生产环境资源与 RPC 配额计；如客户自备服务器、CDN 与 RPC 节点，可只采购基础维护服务；</li>
+    <li>基础维护只覆盖<strong>已完成事项</strong>的维护与缺陷修复，不包含新增功能；新增功能<strong>按报价为准</strong>；</li>
+    <li>紧急响应时间为 <strong>60 分钟内</strong>，不含 BSC 链上拥堵、BSC RPC 服务商故障、云服务商故障等不可控因素；</li>
+    <li>连续欠费超过 15 天，开发方有权暂停运维服务，数据保留与恢复按合同约定执行。</li>
+  </ul>
+
+  <div class="note">
+    <strong>运维口径：</strong>每月固定 <strong>$1,000</strong> ＝ 服务器 + CDN + BSC 节点 RPC API <strong>$500</strong> ＋ 基础维护（已完成事项）<strong>$500</strong>；紧急响应 <strong>60 分钟内</strong>；新增功能与 UI 超出两版的修改均按报价为准。
+  </div>
+</section>
+
+<!-- ============ 六 ============ -->
+<section id="s6" data-chap="06">
+  <h2>六、交付物清单</h2>
+
+  <div class="tw">
+    <table class="wide">
+      <thead>
+        <tr><th>类别</th><th>交付内容</th><th>形式</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>智能合约</td>
+          <td>全部 BSC 合约源码（Solidity），含完整注释与模块说明</td>
+          <td>代码仓库</td>
+        </tr>
+        <tr>
+          <td>部署资产</td>
+          <td>BSC 主网 / BSC Testnet 部署脚本、合约地址清单、初始化参数表、多签配置说明、BSC 节点 RPC 配置说明</td>
+          <td>代码仓库 + 文档</td>
+        </tr>
+        <tr>
+          <td>管理后台</td>
+          <td>后台源码、数据看板、部署与运维说明</td>
+          <td>代码仓库 + 文档</td>
+        </tr>
+        <tr>
+          <td>用户端 UI 视觉设计</td>
+          <td>用户端关键页面 <strong>2 版</strong>视觉设计稿；两版内修改；超出两版额外计费</td>
+          <td>设计文件</td>
+        </tr>
+        <tr>
+          <td>测试</td>
+          <td>BSC Testnet 测试用例集、单元/集成测试脚本、测试报告</td>
+          <td>代码仓库 + 报告</td>
+        </tr>
+        <tr>
+          <td>技术文档</td>
+          <td>架构设计文档、接口文档、参数说明、运维手册</td>
+          <td>文档</td>
+        </tr>
+        <tr>
+          <td>审计支持</td>
+          <td>审计对接、问题答疑与修复记录</td>
+          <td>过程交付</td>
+        </tr>
+        <tr>
+          <td>培训答疑</td>
+          <td>交付后 30 天内 3 次线上答疑或操作培训</td>
+          <td>线上会议</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>6.1 交付验收标准</h3>
+  <ol>
+    <li>BSC Testnet 完成全流程演示：入金 → 释放 → 交易 → 救市 → 级差结算 → 封顶 → 提现；</li>
+    <li>P0 / P1 级测试用例通过率 <strong>100%</strong>；</li>
+    <li>三账对账结果平衡，无重复计算项；</li>
+    <li>BSC 主网部署完成，合约地址与参数表确认无误；</li>
+    <li>用户端 UI 视觉设计交付 <strong>2 版</strong>设计稿，两版内修改完成。</li>
+  </ol>
+</section>
+
+<!-- ============ 七 ============ -->
+<section id="s7" data-chap="07">
+  <h2>七、技术栈与实现口径</h2>
+
+  <div class="tw">
+    <table class="wide">
+      <thead>
+        <tr><th>层级</th><th>技术选型</th><th>说明</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>智能合约</td><td>Solidity ^0.8.24 + Hardhat</td><td>OpenZeppelin 标准库，可升级代理，全量单元测试</td></tr>
+        <tr><td>AMM 集成</td><td>Uniswap V2 风格 Router / Pair（BSC 部署）</td><td>基于成熟协议二次封装，不自研 AMM 数学</td></tr>
+        <tr><td>BSC 节点 RPC</td><td>BSC 公共 / 专用 RPC 节点（客户指定或运维提供）</td><td>链上读写、事件解析与交易提交；运维期含 RPC API 接入与配额</td></tr>
+        <tr><td>价格源</td><td>BSC 链上 TWAP / 指定预言机</td><td>用于跌幅判定与滑点分档，单一价格源接入</td></tr>
+        <tr><td>管理后台</td><td>Next.js + TypeScript + Tailwind</td><td>后台管理与三账对账看板</td></tr>
+        <tr><td>用户端 UI 设计</td><td>Figma</td><td>提供 2 版视觉设计稿，两版内修改，超出额外计费</td></tr>
+        <tr><td>数据索引</td><td>The Graph 或自建 Indexer（BSC）</td><td>BSC 链上事件解析，支撑实时看板与对账</td></tr>
+        <tr><td>数据库</td><td>PostgreSQL</td><td>订单、日志、每日快照</td></tr>
+        <tr><td>部署</td><td>Docker + CI/CD</td><td>BSC Testnet / BSC 主网双环境</td></tr>
+        <tr><td>目标链</td><td><strong>BNB Smart Chain（BSC）</strong></td><td>本报价按 <strong>BSC 单链</strong>部署计；测试网为 BSC Testnet</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>7.1 实现口径约定</h3>
+  <ul>
+    <li>全部合约部署于 <strong>BNB Smart Chain（BSC）</strong>，本报价按 BSC 单链部署；</li>
+    <li>所有关键参数（释放率区间、滑点档位、救市比例、等级门槛、拨比上限）均通过配置中心管理，可后台调整；</li>
+    <li>云矿池释放率以 <strong>OS 总发行量 21 亿</strong> 为计算基数；</li>
+    <li>3X 为<strong>账面目标</strong>，系统不做刚性兑付承诺，实际兑换以 BSC 链上 AMM 成交为准；</li>
+    <li>矿机协议资产单独记账，系统层面禁止其再次进入现金分配流程；</li>
+    <li>所有涉及资金的动作均需权限校验并记录审计日志；</li>
+    <li>用户端 UI 视觉设计仅包含 <strong>2 版</strong>，两版内修改；超出两版或整体方向重做按变更报价；</li>
+    <li>新增功能与规则调整<strong>按报价为准</strong>，不包含在开发总包与基础维护中。</li>
+  </ul>
+</section>
+
+<!-- ============ 八 ============ -->
+<section id="s8" data-chap="08">
+  <h2>八、不含范围</h2>
+
+  <p>以下内容不在本开发总价范围内；其中运营类项目可由第五章运维服务覆盖，其余如需提供另行报价：</p>
+
+  <ul>
+    <li>第三方安全审计费用（可协助对接审计机构，费用由客户直接支付）；</li>
+    <li>品牌物料（Logo、视觉规范、宣传页）；</li>
+    <li>用户端前端功能开发与联调（本报价仅含用户端 UI 视觉设计，不含前端开发）；</li>
+    <li>用户端 UI 视觉设计<strong>超出两版</strong>的修改、方向重做或新增页面设计；</li>
+    <li>法务、合规意见、白皮书撰写与宣传文案；</li>
+    <li>BSC 链上 Gas 费；服务器、CDN 与 BSC 节点 RPC API 等运营成本<strong>不包含在 $15,000 开发总价内</strong>，由第五章运维费用按月覆盖；</li>
+    <li>上线后的运营、做市、客服与社区管理；</li>
+    <li>多链部署（本报价仅含 <strong>BSC 单链</strong>，增加其他链另行计价）；</li>
+    <li>超出第二章模块清单的新增功能与规则调整（<strong>按报价为准</strong>）；</li>
+    <li>与外部交易所、钱包 App、支付通道的定制对接；</li>
+    <li>紧急响应 60 分钟内不含 BSC 链上拥堵、BSC RPC 服务商故障、云服务商故障等不可控因素。</li>
+  </ul>
+</section>
+
+<!-- ============ 九 ============ -->
+<section id="s9" data-chap="09">
+  <h2>九、假设与前提</h2>
+
+  <ol class="principles">
+    <li>客户在第 <strong>5 个工作日</strong>前完成规则口径冻结并书面确认，作为开发基线。</li>
+    <li>客户提供全部最终参数（释放率区间、滑点档位、救市比例、V1–V9 业绩门槛、拨比上限等）。</li>
+    <li>AMM 基于成熟 DEX 协议二次封装，不从零自研做市数学与流动性模型。</li>
+    <li>目标链为<strong>币安智能链 BNB Smart Chain（BSC）</strong>，本报价按 <strong>BSC 单链</strong>部署计费；测试网使用 BSC Testnet。</li>
+    <li>价格来源由客户确认，报价含<strong>单一</strong>价格源接入；多源聚合另行计价。</li>
+    <li>客户指定多签钱包、管理员地址与托管地址，并承担私钥管理责任。</li>
+    <li>测试在 BSC Testnet 完成，BSC 主网部署由双方共同确认时间窗口。</li>
+    <li>运维期 BSC 节点 RPC API 由第五章运维服务覆盖；开发期可使用 BSC Testnet 公共 RPC 或客户指定 RPC。</li>
+    <li>客户方需指定 <strong>1 名项目对接人</strong>，负责需求确认与验收签字。</li>
+    <li>用户端 UI 视觉设计按 <strong>2 版</strong>交付，两版内修改；超出两版按变更报价。</li>
+    <li>本报价基于当前规则文档版本；新增功能与实质性变更<strong>按报价为准</strong>，走变更流程。</li>
+  </ol>
+</section>
+
+<!-- ============ 十 ============ -->
+<section id="s10" data-chap="10">
+  <h2>十、变更与验收条款</h2>
+
+  <h3>10.1 需求变更</h3>
+  <ul>
+    <li>需求冻结（Day 5）之后新增或修改功能，按<strong>变更单另行报价</strong>；</li>
+    <li>变更需双方签署书面变更单，明确范围、工期影响与费用；</li>
+    <li>新增功能<strong>按报价为准</strong>，不包含在 $15,000 开发总包与每月基础维护中；</li>
+    <li>用户端 UI 视觉设计<strong>超出两版</strong>的修改、方向重做或新增页面，按变更单额外计费；</li>
+    <li>轻微文字或参数调整可在总价内消化，不另行计费；涉及功能新增的，一律按变更报价执行；</li>
+    <li>变更导致的工期顺延，按实际影响等量延长。</li>
+  </ul>
+
+  <h3>10.2 验收流程</h3>
+  <ol>
+    <li>开发方提交 BSC Testnet 演示与测试报告，客户在 <strong>5 个工作日</strong>内提出书面验收意见；</li>
+    <li>客户提出的问题分为缺陷（免费修复）与新增需求（走变更报价流程）两类；</li>
+    <li>缺陷修复完成后再次提交验收，直至达到验收标准；</li>
+    <li>客户逾期未提出书面意见的，视为验收通过。</li>
+  </ol>
+
+  <h3>10.3 质保与责任</h3>
+  <ul>
+    <li>质保期 <strong>30 天</strong>，覆盖交付范围内的缺陷修复；</li>
+    <li>因客户自行修改代码、参数配置错误或私钥管理不当造成的损失，不在质保范围；</li>
+    <li>智能合约经审计后如提出架构级修改建议，修复工作量超出约定范围的部分按变更报价；</li>
+    <li>用户端 UI 视觉设计仅含两版，超出两版的修改不在质保范围内，按变更报价；</li>
+    <li>双方对项目资料与商业信息承担保密义务。</li>
+  </ul>
+</section>
+
+<!-- ============ 十一 ============ -->
+<section id="s11" data-chap="11">
+  <h2>十一、报价说明</h2>
+
+  <div class="tw">
+    <table class="wide">
+      <thead>
+        <tr><th>项目</th><th>说明</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>报价性质</td><td>一次性总包价，非按时计费</td></tr>
+        <tr><td>部署链</td><td><strong>BNB Smart Chain（BSC）单链</strong>；测试网 BSC Testnet</td></tr>
+        <tr><td>开发总价</td><td class="price">$15,000 USD</td></tr>
+        <tr><td>付款节奏</td><td>50% 预付（$7,500）＋ 50% 交付（$7,500）</td></tr>
+        <tr><td>开发工期</td><td class="num">3 周（21 个自然日）</td></tr>
+        <tr><td>用户端 UI 设计</td><td>包含 <strong>2 版</strong>视觉设计稿；两版内修改；<strong>超出两版额外计费</strong></td></tr>
+        <tr><td>运维费用</td><td>服务器 + CDN + BSC 节点 RPC API <strong>$500 / 月</strong>；基础维护（已完成事项）<strong>$500 / 月</strong>；合计 <strong>$1,000 / 月</strong></td></tr>
+        <tr><td>紧急响应</td><td><strong>60 分钟内</strong>响应</td></tr>
+        <tr><td>新增功能</td><td>不在开发总包与基础维护内，<strong>按报价为准</strong></td></tr>
+        <tr><td>税费</td><td>报价不含税，开票税费另计</td></tr>
+        <tr><td>报价有效期</td><td class="num">30 天（自 2026-11-05 起算）</td></tr>
+        <tr><td>质保期</td><td class="num">交付后 30 天</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note">
+    <strong>确认方式：</strong>客户确认本报价单后，双方签署正式《技术开发合同》，并按第四章约定支付预付款，项目即进入开发排期。运维服务、新增功能及 UI 超出两版的修改，另按第五章及变更条款执行。
+  </div>
+
+  <p>本报价单为商务报价文件，具体条款以双方签署的正式合同文本为准。</p>
+</section>
+
+</main>
+
+<footer>
+  四池架构 DeFi 协议 · 技术开发报价单<br>
+  部署链：BNB Smart Chain（BSC）单链 · 测试网 BSC Testnet<br>
+  开发总价 $15,000 USD　|　工期 3 周　|　50% 预付 · 50% 交付<br>
+  用户端 UI 视觉设计：2 版（两版内修改，超出额外计费）<br>
+  运维：服务器 + CDN + BSC 节点 RPC API $500/月 ＋ 基础维护 $500/月　|　紧急响应 60 分钟内　|　新增功能按报价为准<br>
+  本报价单最终解释权归开发方所有，以正式合同为准
+</footer>
+
+<button class="totop" id="totop" aria-label="回到顶部">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 19V5M5 12l7-7 7 7"/>
+  </svg>
+</button>
+
+<script>
+(function () {
+  'use strict';
+
+  document.documentElement.classList.add('js');
+
+  var nav = document.getElementById('toc');
+  var links = Array.prototype.slice.call(nav.querySelectorAll('a'));
+  var sections = links.map(function (a) {
+    return document.querySelector(a.getAttribute('href'));
+  });
+
+  var progress = document.getElementById('progress');
+  var totop = document.getElementById('totop');
+  var ticking = false;
+  var current = -1;
+
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    window.requestAnimationFrame(function () {
+      ticking = false;
+
+      var y = window.scrollY || window.pageYOffset;
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+
+      var pct = max > 0 ? Math.min(100, (y / max) * 100) : 0;
+      progress.style.width = pct + '%';
+
+      totop.classList.toggle('show', y > 520);
+
+      var probe = y + 96;
+      var idx = 0;
+      for (var i = 0; i < sections.length; i++) {
+        if (sections[i] && sections[i].offsetTop <= probe) idx = i;
+      }
+      if (max - y < 120) idx = sections.length - 1;
+
+      if (idx !== current) {
+        current = idx;
+        links.forEach(function (l, i) {
+          l.classList.toggle('active', i === idx);
+        });
+        var active = links[idx];
+        if (active) {
+          var target = active.offsetLeft - (nav.clientWidth - active.offsetWidth) / 2;
+          nav.scrollTo({
+            left: Math.max(0, target),
+            behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
+          });
+        }
+      }
+    });
+  }
+
+  totop.addEventListener('click', function () {
+    window.scrollTo({
+      top: 0,
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
+    });
+  });
+
+  var revealTargets = Array.prototype.slice.call(document.querySelectorAll('main section'));
+  if ('IntersectionObserver' in window &&
+      !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    revealTargets.forEach(function (s) { s.classList.add('reveal'); });
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.06 });
+    revealTargets.forEach(function (s) { io.observe(s); });
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+
+  onScroll();
+})();
+</script>
+
+</body>
+</html>
