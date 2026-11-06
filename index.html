@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#0b1219" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#0b5d5a" media="(prefers-color-scheme: light)">
-<title>四池架构规则初版（讨论稿）</title>
+<title>四池架构规则最终版</title>
 <style>
 /* ============================================================
    设计令牌
@@ -265,17 +265,6 @@ hr{border:none;border-top:1px dashed var(--line);margin:18px 0;}
   font-weight:700;
   box-shadow:0 4px 14px -6px var(--brand);
 }
-.toc a.toc-reply{
-  border-color:var(--accent-line);
-  color:var(--accent);
-  background:var(--accent-bg);
-}
-.toc a.toc-reply.active{
-  background:linear-gradient(135deg,var(--accent-2),var(--accent));
-  color:#fff;
-  border-color:transparent;
-}
-.toc a.toc-reply span{font-variant-numeric:tabular-nums;}
 
 /* ============================================================
    主体
@@ -309,7 +298,6 @@ section::after{
   pointer-events:none;
   user-select:none;
 }
-section[data-chap=""]::after{content:none;}
 
 .js section.reveal{
   opacity:0;
@@ -427,205 +415,6 @@ table.wide tbody tr:nth-child(even) td:first-child{background:var(--row-even);}
 table.wide tr.total td:first-child{background:var(--total-bg);}
 
 /* ============================================================
-   待确认提示
-   ============================================================ */
-.pending{
-  position:relative;
-  margin:15px 0;
-  padding:13px 14px 13px 15px;
-  background:var(--accent-bg);
-  border:1px solid var(--accent-line);
-  border-radius:var(--radius-sm);
-  font-size:13.5px;
-  line-height:1.74;
-  color:var(--accent-ink);
-  box-shadow:0 6px 18px -16px var(--accent);
-}
-.pending::before{
-  content:"";
-  position:absolute;
-  left:0;top:12px;bottom:12px;
-  width:3px;
-  border-radius:0 3px 3px 0;
-  background:linear-gradient(180deg,var(--accent-2),var(--accent));
-}
-.pending strong{color:var(--accent-ink);font-weight:800;}
-.pending .ttl{
-  display:block;
-  font-weight:800;
-  color:var(--accent);
-  margin-bottom:5px;
-  font-size:13.5px;
-  line-height:1.55;
-}
-.pending ol,.pending ul{margin:7px 0 1px;padding-left:19px;}
-.pending li{margin:4px 0;}
-.pending li::marker{color:var(--accent);font-weight:700;}
-
-/* ============================================================
-   待确认 · 回复区
-   ============================================================ */
-.reply{
-  margin-top:13px;
-  padding-top:13px;
-  border-top:1px dashed var(--accent-line);
-  color:var(--ink-2);
-  font-size:13px;
-  line-height:1.6;
-}
-
-.reply-bar{
-  display:block;
-  width:100%;
-  padding:10px 12px;
-  text-align:left;
-  font-family:inherit;
-  font-size:13px;
-  line-height:1.5;
-  color:var(--ink-2);
-  background:var(--surface);
-  border:1px dashed var(--line-2);
-  border-radius:10px;
-  cursor:pointer;
-  transition:border-color .2s var(--ease),background .2s var(--ease),color .2s var(--ease);
-}
-.reply-bar:active{transform:scale(.995);}
-.reply.has .reply-bar{
-  border-style:solid;
-  border-color:var(--brand-3);
-  background:var(--brand-soft);
-  color:var(--brand-ink);
-}
-
-.reply-line1{
-  display:flex;align-items:center;gap:7px;
-  min-width:0;
-}
-.reply-ico{
-  flex:0 0 auto;
-  width:20px;height:20px;
-  display:flex;align-items:center;justify-content:center;
-  border-radius:50%;
-  background:var(--accent-bg);
-  color:var(--accent);
-  font-size:11px;
-  line-height:1;
-  border:1px solid var(--accent-line);
-}
-.reply-ico::before{content:"✍";}
-.reply.has .reply-ico{
-  background:linear-gradient(135deg,var(--brand-2),var(--brand));
-  border-color:transparent;
-  color:#fff;
-}
-.reply.has .reply-ico::before{content:"✓";font-weight:800;}
-
-.reply-text{
-  flex:1 1 auto;
-  min-width:0;
-  font-weight:600;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-
-.reply-badge{
-  flex:0 0 auto;
-  font-size:11px;
-  font-weight:600;
-  padding:2px 8px;
-  border-radius:999px;
-  background:var(--surface-2);
-  border:1px solid var(--line);
-  color:var(--ink-3);
-}
-.reply.has .reply-badge{
-  background:var(--brand);
-  border-color:transparent;
-  color:#fff;
-}
-
-.reply-preview{
-  display:none;
-  margin-top:5px;
-  padding-left:27px;
-  font-size:12.5px;
-  line-height:1.5;
-  color:var(--ink-2);
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-.reply.has .reply-preview{display:block;}
-
-.reply-body{
-  display:grid;
-  grid-template-rows:0fr;
-  transition:grid-template-rows .32s var(--ease);
-}
-.reply.open .reply-body{grid-template-rows:1fr;}
-.reply-inner{overflow:hidden;min-height:0;}
-
-.reply-body textarea{
-  display:block;
-  width:100%;
-  margin-top:10px;
-  min-height:92px;
-  padding:11px 12px;
-  font-family:inherit;
-  font-size:16px; /* 防 iOS 自动缩放 */
-  line-height:1.65;
-  color:var(--ink);
-  background:var(--surface);
-  border:1px solid var(--line-2);
-  border-radius:10px;
-  outline:none;
-  resize:vertical;
-  -webkit-appearance:none;
-  transition:border-color .2s var(--ease),box-shadow .2s var(--ease);
-}
-.reply-body textarea::placeholder{color:var(--ink-3);}
-.reply-body textarea:focus{
-  border-color:var(--brand-2);
-  box-shadow:0 0 0 3px rgba(53,179,164,.18);
-  box-shadow:0 0 0 3px color-mix(in srgb,var(--brand-3) 20%,transparent);
-}
-.reply-body textarea[readonly]{
-  cursor:default;
-  background:var(--surface-2);
-}
-
-.reply-meta{
-  display:flex;align-items:center;justify-content:space-between;
-  gap:10px;
-  margin-top:8px;
-  font-size:12px;
-  color:var(--ink-3);
-}
-.reply-saved{
-  min-width:0;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-
-.mini-btn{
-  flex:0 0 auto;
-  padding:5px 11px;
-  font-family:inherit;
-  font-size:12px;
-  font-weight:600;
-  color:var(--ink-2);
-  background:var(--surface);
-  border:1px solid var(--line-2);
-  border-radius:8px;
-  cursor:pointer;
-  transition:transform .15s var(--ease),border-color .2s var(--ease);
-}
-.mini-btn:active{transform:scale(.95);}
-.mini-btn:hover{border-color:var(--brand-3);}
-
-/* ============================================================
    提示块
    ============================================================ */
 .note{
@@ -675,138 +464,6 @@ table.wide tr.total td:first-child{background:var(--total-bg);}
   display:flex;align-items:center;justify-content:center;
   line-height:1;
   box-shadow:0 3px 9px -4px var(--brand);
-}
-
-/* ============================================================
-   回复汇总
-   ============================================================ */
-.rs-desc{
-  font-size:13.5px;
-  color:var(--ink-2);
-  margin:0 0 14px;
-}
-.rs-stats{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-  margin-bottom:14px;
-}
-.rs-stats > div{
-  padding:13px 10px;
-  text-align:center;
-  background:var(--surface-2);
-  border:1px solid var(--line);
-  border-radius:12px;
-}
-.rs-stats b{
-  display:block;
-  font-size:26px;
-  font-weight:800;
-  line-height:1.2;
-  letter-spacing:-.02em;
-  color:var(--brand-ink);
-}
-.rs-stats span{
-  display:block;
-  margin-top:3px;
-  font-size:11.5px;
-  color:var(--ink-3);
-}
-
-.rs-bar{
-  height:7px;
-  margin-bottom:16px;
-  background:var(--surface-2);
-  border:1px solid var(--line);
-  border-radius:999px;
-  overflow:hidden;
-}
-.rs-bar i{
-  display:block;
-  height:100%;
-  width:0%;
-  border-radius:999px;
-  background:linear-gradient(90deg,var(--brand-3),var(--brand-2));
-  transition:width .35s var(--ease);
-}
-
-.rs-actions{
-  display:flex;
-  flex-wrap:wrap;
-  gap:9px;
-}
-.rs-actions .btn{
-  flex:1 1 calc(50% - 5px);
-  min-width:132px;
-}
-
-.btn{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  gap:6px;
-  padding:11px 16px;
-  font-family:inherit;
-  font-size:13.5px;
-  font-weight:700;
-  line-height:1.2;
-  border-radius:10px;
-  border:1px solid var(--line-2);
-  background:var(--surface);
-  color:var(--ink);
-  cursor:pointer;
-  transition:transform .15s var(--ease),box-shadow .2s var(--ease),border-color .2s var(--ease);
-}
-.btn:active{transform:scale(.97);}
-.btn-primary{
-  background:linear-gradient(135deg,var(--brand-2),var(--brand));
-  border-color:transparent;
-  color:#fff;
-  box-shadow:0 6px 18px -10px var(--brand);
-}
-.btn-danger{
-  background:var(--accent-bg);
-  border-color:var(--accent-line);
-  color:var(--accent);
-}
-
-.rs-hint{
-  margin:11px 0 0;
-  min-height:1.5em;
-  font-size:12.5px;
-  line-height:1.6;
-  color:var(--ink-3);
-  transition:color .2s var(--ease);
-}
-.rs-hint.ok{color:var(--brand-2);font-weight:600;}
-.rs-hint.err{color:var(--accent);font-weight:600;}
-
-.rs-sync{
-  margin:10px 0 0;
-  font-size:12.5px;
-  color:var(--ink-3);
-}
-.rs-sync.ok{color:var(--brand-2);font-weight:600;}
-.rs-sync.err{color:var(--accent);font-weight:600;}
-
-.rs-empty{
-  margin:14px 0 0;
-  padding:12px 14px;
-  font-size:12.5px;
-  line-height:1.65;
-  color:var(--ink-3);
-  background:var(--surface-2);
-  border:1px dashed var(--line-2);
-  border-radius:10px;
-}
-.rs-empty code{
-  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-  font-size:12px;
-  padding:1px 5px;
-  border-radius:5px;
-  background:var(--surface);
-  border:1px solid var(--line);
-  color:var(--brand-2);
 }
 
 /* ============================================================
@@ -874,7 +531,6 @@ footer::before{
   table{font-size:14px;}
   th,td{padding:11px 13px;}
   .totop{right:28px;bottom:28px;}
-  .rs-actions .btn{flex:0 1 auto;min-width:150px;}
 }
 </style>
 </head>
@@ -884,13 +540,13 @@ footer::before{
 
 <!-- ==================== 头部 ==================== -->
 <header class="hero">
-  <span class="tag">讨论稿 · 初版</span>
-  <h1>四池架构规则初版</h1>
+  <span class="tag">最终版</span>
+  <h1>四池架构规则最终版</h1>
   <p class="sub">四池分离 + 两个自动阀门 + 市场自由交易 + 自由退出 + 协议资产三账分离</p>
 
   <div class="chips">
     <span>云矿池</span>
-    <span>LP池</span>
+    <span>LP底池</span>
     <span>Treasury／平衡池</span>
     <span>保障／保险池</span>
     <span>市场决定价格</span>
@@ -918,8 +574,6 @@ footer::before{
   <a href="#s10">收益封顶</a>
   <a href="#s11">重购池</a>
   <a href="#s12">设计原则</a>
-  <a href="#s13">待确认</a>
-  <a href="#replies" class="toc-reply">✍ 回复 <span id="toc-reply-count">0/14</span></a>
 </nav>
 
 <main>
@@ -931,23 +585,17 @@ footer::before{
   <h3>1.1 目标架构</h3>
   <p><strong>四池分离 + 两个自动阀门 + 市场自由交易 + 自由退出 + 协议资产三账分离。</strong></p>
   <ul>
-    <li><strong>四池</strong>：云矿池、LP池、Treasury／平衡池、保障／保险池。</li>
+    <li><strong>四池</strong>：云矿池、LP底池、Treasury／平衡池、保障／保险池。</li>
     <li><strong>两个自动阀门</strong>：
       <ol>
         <li><strong>云矿池</strong>：控制 Token 生产／释放速度；</li>
-        <li><strong>Treasury／保障池</strong>：按跌幅等级自动保护协议资产、分级救市。</li>
+        <li><strong>Treasury／平衡池</strong>：按跌幅等级自动保护协议资产、执行分级救市。</li>
       </ol>
     </li>
     <li><strong>市场原则</strong>：价格由 AMM 决定，不由管理员报价；用户自由买卖、自由退出。</li>
     <li><strong>资产原则</strong>：现金、OS、矿机协议资产三账分离，禁止一笔钱重复计算两次。</li>
     <li><strong>退出原则</strong>：3X 是账面目标，不是刚性兑付；实际可兑换 U 取决于 AMM 流动性和成交价格。</li>
   </ul>
-
-  <div class="pending">
-    <span class="ttl">【待确认1：“四池”还是“三池”】</span>
-    前文按“四池”表述，但原文后文核心结构曾写“三池”，需统一最终口径。<br>
-    说明：本整理版统一按“四池架构”表述，原文“三池／四池”口径差异保留在本待确认项。
-  </div>
 
   <h3>1.2 四池职责总表</h3>
   <div class="tw">
@@ -959,34 +607,33 @@ footer::before{
         <tr>
           <td>1）云矿池</td>
           <td>生产／释放 Token</td>
-          <td>Token 释放节奏；按市场状态调整释放率 0.3%～1.0%</td>
-          <td>不负责 USDT 资金分配；不负责资金池分配。动静态若指 Token 释放，节奏归云矿池；若指收益分配，则不应归云矿池【待确认3】</td>
+          <td>Token 释放节奏；按市场状态调整释放率 0.3%～1.0%；每天静态收益和动态奖金由云矿池执行发放</td>
+          <td>不负责 USDT 资金分配；不负责资金池分配</td>
         </tr>
         <tr>
-          <td>2）LP池</td>
+          <td>2）LP底池</td>
           <td>真实市场交易</td>
           <td>初始 LP：20,000,000 OS + 100,000U；初始参考价 0.005U/OS；所有买卖由 AMM 自动结算</td>
-          <td>价格不由管理员设定；不承担救市无限兜底。初始 LP 的 20,000,000 OS 不等于 OS 总发行量【待确认12】</td>
+          <td>价格不由管理员设定；不承担救市无限兜底。初始 LP 的 20,000,000 OS 不等于 OS 总发行量，总发行量为 21 亿</td>
         </tr>
         <tr>
           <td>3）Treasury／平衡池</td>
-          <td>市值管理、协议资产保护、卖币回流管理</td>
-          <td>涨幅保护；卖币回流；按规则购买矿机；与保障池配合救市</td>
+          <td>市值管理、协议资产保护、卖币回流管理、累计跌幅分级救市</td>
+          <td>涨幅保护；卖币回流；按规则购买矿机；执行累计跌幅分级救市</td>
           <td>不控制用户；不人为限制用户卖出；不把矿机资产当现金重复分配</td>
         </tr>
         <tr>
           <td>4）保障／保险池</td>
-          <td>累计跌幅分级救市</td>
-          <td>累计跌幅达到 10%／20%／30%／40%／50% 分级触发；每级使用 Treasury 当时可用资金 5%～10% 采购矿机</td>
-          <td>不是无限救市；不是一次行情耗尽；每级触发后等待观察</td>
+          <td>主流币保障与后期未回本补偿</td>
+          <td>购买主流币 BTC／ETH／BNB／SOL 作为保障；后期平台走不动时，对后期加入且未达到回本的用户，按未回本金额百分比补偿</td>
+          <td>累计跌幅分级救市由 Treasury／平衡池执行；保险池不承担无限救市</td>
         </tr>
       </tbody>
     </table>
   </div>
 
-  <div class="pending">
-    <span class="ttl">【待确认2：Treasury池、平衡池、保障池、保险池的名称关系】</span>
-    需确认：是否 <strong>Treasury = 平衡池</strong>，<strong>保障池 = 保险池</strong>；以及四池名称在全文、合同、系统字段和对外口径中是否统一使用同一组名称。
+  <div class="note">
+    <strong>名称口径：</strong>四池统一为云矿池、LP底池、Treasury／平衡池、保障／保险池；其中 Treasury 即平衡池，保障即保险池。累计跌幅分级救市由 Treasury／平衡池执行；保险池用于主流币保障及后期未回本补偿。
   </div>
 </section>
 
@@ -995,22 +642,8 @@ footer::before{
   <h2>二、云矿池：Token 释放机制</h2>
 
   <h3>2.1 唯一职责</h3>
-  <p><strong>生产／释放 Token。</strong></p>
-  <p>云矿池只负责 Token 释放节奏，不负责 USDT 资金分配。原文提到“静动态 Token 释放机制”，整理为：</p>
-  <ul>
-    <li>若“动静态释放”指 <strong>Token 释放</strong>，归云矿池；</li>
-    <li>若“动静态释放”指 <strong>收益分配</strong>，需另拆规则【待确认3】。</li>
-  </ul>
-
-  <div class="pending">
-    <span class="ttl">【待确认3：云矿池是否负责“动静态释放”】</span>
-    原文既说不负责动静态释放，又说这里是静动态 Token 释放机制；需确认口径：
-    <ol>
-      <li>“动静态释放”到底指 <strong>Token 释放节奏</strong>，还是指 <strong>收益分配</strong>；</li>
-      <li>若指 Token 释放，是否全部归云矿池；</li>
-      <li>若指收益分配，应归哪个池／哪套规则，是否需另拆独立规则。</li>
-    </ol>
-  </div>
+  <p><strong>生产／释放 Token（币）。</strong></p>
+  <p>云矿池只负责币；每天静态收益和动态奖金均由云矿池执行发放。云矿池不负责 USDT 资金分配。</p>
 
   <h3>2.2 释放率区间</h3>
   <div class="tw">
@@ -1025,42 +658,30 @@ footer::before{
     </table>
   </div>
 
-  <h3>2.3 释放阈值待填表【待确认10】</h3>
+  <h3>2.3 释放率调整规则</h3>
+  <p>以昨天的卖盘金额和今天的入金金额作为调整依据。示例：</p>
   <div class="tw">
     <table class="wide">
       <thead>
-        <tr><th>市场状态</th><th>判断指标</th><th>判断阈值</th><th>采样周期</th><th>释放倾向</th></tr>
+        <tr><th>市场状态</th><th>判断示例</th><th>释放倾向</th></tr>
       </thead>
       <tbody>
-        <tr><td>强势</td><td>待定</td><td>待定</td><td>待定</td><td>约 0.8%～1.0%</td></tr>
-        <tr><td>正常</td><td>待定</td><td>待定</td><td>待定</td><td>约 0.6%～0.8%</td></tr>
-        <tr><td>压力</td><td>待定</td><td>待定</td><td>待定</td><td>约 0.4%～0.6%</td></tr>
-        <tr><td>严重压力</td><td>待定</td><td>待定</td><td>待定</td><td>约 0.3%～0.4%</td></tr>
+        <tr><td>强势</td><td>昨天卖盘 1 万，今天入金 2 万</td><td>约 0.8%～1.0%</td></tr>
+        <tr><td>正常</td><td>昨天卖盘 1 万，今天入金 8 千</td><td>约 0.6%～0.8%</td></tr>
+        <tr><td>压力</td><td>昨天卖盘 1 万，今天入金 5 千</td><td>约 0.4%～0.6%</td></tr>
+        <tr><td>严重压力</td><td>卖盘显著高于入金、流动性紧张</td><td>约 0.3%～0.4%</td></tr>
       </tbody>
     </table>
   </div>
 
-  <div class="pending">
-    <span class="ttl">【待确认10：云矿池 Token 释放机制的“市场状态”判断阈值标准】</span>
-    目前只给了释放率区间，未定义判定指标、阈值、采样周期、调整频率等。需明确：
-    <ol>
-      <li>判断指标：价格、成交额、流动性、波动率、TVL、跌幅或其他组合指标；</li>
-      <li>各状态阈值；</li>
-      <li>采样周期与调整频率；</li>
-      <li>状态切换是否需要滞后／确认机制，避免频繁调整。</li>
-    </ol>
-  </div>
-
-  <div class="pending">
-    <span class="ttl">【待确认12：OS 总发行量／最大供应量／初始流通量】</span>
-    原文仅明确初始 LP 为 20,000,000 OS + 100,000U，未明确 OS 总发行量、最大供应量、初始流通量及云矿池可释放总量。释放率 0.3%～1.0% 的计算基数必须在发行量口径确定后才能落地。需明确：
-    <ol>
-      <li>OS 总发行量、最大供应量、初始流通量；</li>
-      <li>各池／各角色分配；</li>
-      <li>锁仓释放曲线；</li>
-      <li>是否增发、销毁及权限规则。</li>
-    </ol>
-  </div>
+  <h3>2.4 OS 发行量</h3>
+  <ul>
+    <li><strong>总发行量：21 亿 OS</strong>；</li>
+    <li><strong>不增发</strong>；</li>
+    <li>LP底池：<strong>20,000,000 OS + 100,000U</strong>；</li>
+    <li>Treasury 池：<strong>80,000,000 OS</strong>。</li>
+  </ul>
+  <p>云矿池释放率 0.3%～1.0% 以 OS 总发行量为计算基数。</p>
 </section>
 
 <!-- ============ 三 ============ -->
@@ -1087,11 +708,7 @@ footer::before{
     <li><strong>3X 账面目标</strong>；</li>
     <li><strong>实际市场可兑换金额</strong>。</li>
   </ol>
-
-  <div class="pending">
-    <span class="ttl">【待确认12：OS 发行量待确认】</span>
-    20,000,000 OS 是初始 LP 中的 OS 数量，不能据此直接认定 OS 总发行量就是 20,000,000。需明确总发行量、最大供应量、初始流通量、各池／各角色分配、锁仓释放曲线、是否增发销毁等。该待确认点同时影响第二章云矿池释放率计算基数。
-  </div>
+  <p>OS 总发行量为 21 亿，20,000,000 OS 仅为初始 LP 中的 OS 数量，不等于总发行量。</p>
 </section>
 
 <!-- ============ 四 ============ -->
@@ -1100,9 +717,9 @@ footer::before{
 
   <h3>4.1 涨幅保护</h3>
   <ul>
-    <li>每天当币价上涨超过 <strong>1%</strong>，Treasury 卖出 OS，使日涨幅尽量保持在 <strong>1% 以下</strong>。</li>
-    <li>当卖币金额超过 <strong>1000U</strong>，系统自动进场购买矿机。</li>
-    <li>购买矿机统一按：<strong>500U 现金 → 1000U 矿机协议资产</strong>。原文“700U 买矿机”口径不再采用。</li>
+    <li>每天当币价上涨超过 <strong>1%</strong>，Treasury／平衡池卖出 OS，使日涨幅尽量保持在 <strong>1% 以下</strong>。</li>
+    <li>当卖币金额达到 <strong>1000U</strong>，系统自动进场购买矿机。</li>
+    <li>购买矿机统一按：<strong>500U 现金 → 1000U 矿机协议资产</strong>。</li>
   </ul>
 
   <h3>4.2 卖币回流 1000U 的分配</h3>
@@ -1115,7 +732,7 @@ footer::before{
           <td>自动购买矿机</td><td>500U</td>
           <td>该 500U 的路径为进入 LP，形成 <strong>1000U 矿机协议资产</strong>；该矿机同样以 3 倍出局</td>
         </tr>
-        <tr><td>分红池</td><td>100U</td><td>进入分红池</td></tr>
+        <tr><td>分红池</td><td>100U</td><td>作为投资平衡池的分红</td></tr>
         <tr><td>平衡池储备</td><td>400U</td><td>保留为平衡池储备</td></tr>
         <tr class="total"><td>合计</td><td>1000U</td><td>现金分配闭合</td></tr>
       </tbody>
@@ -1128,11 +745,12 @@ footer::before{
     <li>矿机协议资产账：因 500U 购买矿机，形成 <strong>+1000U 矿机协议资产</strong>；</li>
     <li>“得到 1000U 矿机”是<strong>资产记账结果</strong>，不是额外 500U 现金，也不是可再次分配的现金；</li>
     <li>该 1000U 矿机协议资产同样以 <strong>3 倍出局</strong>为目标；</li>
+    <li>矿机每天产出的币由云矿池发放，同样留在平衡池，达到 3 倍停止；</li>
     <li>禁止把 1000U 矿机资产再次当成 1000U 现金重新分配。</li>
   </ul>
 
   <div class="note">
-    <strong>口径结论：</strong>原文不是“1000U 分配合计 1500U”的矛盾，而是“500U 进入 LP、得到 1000U 矿机”属于对 500U 购买矿机路径的资产记账说明。现金口径合计为 1000U。
+    <strong>口径结论：</strong>卖币得到 1000U 后，仅用 500U 购买 1000U 配套矿机、100U 作为投资平衡池分红、400U 保留在平衡池，不再分配其他。
   </div>
 
   <h3>4.3 回流资金不得按“新钱”重新分配</h3>
@@ -1178,11 +796,7 @@ footer::before{
     <li>1% 共建者；</li>
     <li>1% 平衡者。</li>
   </ul>
-
-  <div class="pending">
-    <span class="ttl">【待确认6：正常 Swap 3% 与防跌 3% 正常费用关系】</span>
-    需确认：正常 Swap 3% 与防跌机制中的“3% 正常费用”是否为同一组分配；是否均为“基金会 1% + 共建者 1% + 平衡者 1%”；是否存在同一笔费用在不同场景下重复解释或重复分配的问题。
-  </div>
+  <p>正常 Swap 3% 与防跌机制中的“3% 正常费用”为同一组分配，均为基金会 1% + 共建者 1% + 平衡者 1%。</p>
 </section>
 
 <!-- ============ 六 ============ -->
@@ -1206,7 +820,8 @@ footer::before{
 
   <h3>6.2 每一级救市规则</h3>
   <ul>
-    <li>每次触发：使用 <strong>Treasury 池当时可用资金的 5%～10%</strong>；</li>
+    <li>累计跌幅分级救市由 <strong>Treasury／平衡池</strong>执行；</li>
+    <li>每次触发：使用 <strong>Treasury 平衡池当时可用资金的 5%～10%</strong>；</li>
     <li>执行协议资产采购；</li>
     <li>救市方式同样是购买矿机；</li>
     <li>购买矿机统一按：<strong>500U 现金 → 1000U 矿机协议资产</strong>；</li>
@@ -1218,20 +833,8 @@ footer::before{
         <li>达到下一等级再触发下一级。</li>
       </ol>
     </li>
-    <li>目的：避免 Treasury 池因一次极端行情瞬间耗尽。</li>
+    <li>目的：避免 Treasury 平衡池因一次极端行情瞬间耗尽。</li>
   </ul>
-
-  <div class="pending">
-    <span class="ttl">【待确认8：保险池资金来源与“Treasury 当时可用资金”定义】</span>
-    “Treasury 池当时可用资金”的定义需确认：
-    <ol>
-      <li>是否含矿机资产；</li>
-      <li>是否含 LP 中资产；</li>
-      <li>是否含平衡池储备；</li>
-      <li>是否含已分配但未使用资金；</li>
-      <li>保险池自身资金来源是否另行计提，还是仅从 Treasury 当时可用资金中列支。</li>
-    </ol>
-  </div>
 </section>
 
 <!-- ============ 七 ============ -->
@@ -1262,11 +865,7 @@ footer::before{
     <li>OS／Token 账；</li>
     <li>矿机协议资产账。</li>
   </ol>
-
-  <div class="pending">
-    <span class="ttl">【待确认9：矿机产币后续路径】</span>
-    需明确：矿机产币进入协议资产后，如何进入 Token 生产／释放；产币是否全部归云矿池释放、是否部分进入 Treasury／保障池、是否设置单独的矿机产币账；如何确保不再重复分配。
-  </div>
+  <p>矿机产币由云矿池发放，留在平衡池，达到 3 倍停止；不得重复分配。</p>
 </section>
 
 <!-- ============ 八 ============ -->
@@ -1285,18 +884,7 @@ footer::before{
       </tbody>
     </table>
   </div>
-
-  <div class="pending">
-    <span class="ttl">【待确认13：三级推荐 5/3/2 共 10% 的资金来源与发放基数】</span>
-    需确认：
-    <ol>
-      <li>这“三级推荐 10%”是否直接等同于路径2中的“直推奖 10%”；</li>
-      <li>如果是，路径1没有该分配项，该从何处扣除；</li>
-      <li>如果不是，这 10% 是否叠加在原有分配表之上（总拨比变 110% 或 120%）；</li>
-      <li>5/3/2 是按入金 U 计算，还是按算力／Token 数量计算；</li>
-      <li>发放基数、扣除顺序、是否封顶、是否计入 3X 封顶需同步明确。</li>
-    </ol>
-  </div>
+  <p>三级推荐 10% 由路径 2 分配中扣除；路径 1 不设直推奖。5/3/2 按入金 U 计算，计入 3X 封顶。加入 LP 池配套的 3X 由每天静态、动态及直推计算达到 3X。</p>
 
   <h3>8.2 领导级差奖表（V1-V9）</h3>
   <p><strong>核心机制：</strong>以团队业绩（USDT）和区域要求为考核标准，实行 V1-V9 级差奖励。差奖采用差额补足制，计算单位统一为 USDT。</p>
@@ -1337,16 +925,8 @@ footer::before{
     <li>各级差奖合计不得超过最高等级比例对应的总拨比上限。</li>
   </ol>
 
-  <div class="pending">
-    <span class="ttl">【待确认5：V1-V9 级差奖剩余细则】</span>
-    需确认：
-    <ol>
-      <li>“静态收益”的具体构成：是否仅指 LP 静态、平衡 Treasury 分红、矿机产币、权限收益等，是否含动态收益；</li>
-      <li>差奖资金来源：从哪个池／哪笔分配中列支；</li>
-      <li>差奖是否占用资金池分配比例；</li>
-      <li>差奖计算单位统一为 USDT 后，Token 收益如何折算 USDT；</li>
-      <li>差奖是否计入 3X 封顶、是否计入复投、是否受提现手续费影响。</li>
-    </ol>
+  <div class="note">
+    <strong>级差奖口径：</strong>投资 LP 池静态包含静动态 3X；Treasury 分红包含直推和分红 3X。投资 LP 池的所有奖金及差奖由云矿池发放；投资 Treasury 池的分红和直推奖由入金资金发放。差奖计算单位统一为 USDT 后发放币；差奖计入 3X 封顶。
   </div>
 
   <h3>8.3 晋升规则</h3>
@@ -1378,12 +958,7 @@ footer::before{
       </tbody>
     </table>
   </div>
-  <p>即：<strong>50 / 25 / 10 / 10 / 2 / 2 / 1</strong>。</p>
-
-  <div class="pending">
-    <span class="ttl">【待确认13：路径1无“直推／推荐奖”项时的资金来源】</span>
-    此路径中没有“直推／推荐奖”项，若三级推荐 5/3/2 要在此路径发放，需要确认资金来源。可选口径包括：从 Treasury、社区运营、分红池或其他项扣除；或路径1不发放三级推荐奖；或路径1与路径2分别适用不同推荐奖规则。需最终确认，避免总拨比超 100% 或一笔钱重复分配。
-  </div>
+  <p>即：<strong>50 / 25 / 10 / 10 / 2 / 2 / 1</strong>。路径 1 不设直推奖；三级推荐奖由路径 2 扣除。</p>
 
   <h3>9.2 路径2：V1-V9 级差体系 + 平衡 Treasury 池</h3>
   <p>每 1000U 分配：</p>
@@ -1404,31 +979,19 @@ footer::before{
     </table>
   </div>
   <p>即：<strong>40 / 25 / 10 / 10 / 10 / 2 / 2 / 1</strong>。</p>
+  <p>路径 2 进入平衡池；直推奖 10% 拆分为三级推荐 5%、3%、2% 发放；与 8.1 的三级推荐 10% 为同一笔资金。加入平衡池配套的 3X 由每天平衡池分红加直推计算达到 3X。</p>
 
-  <div class="pending">
-    <span class="ttl">【待确认4：路径2“每1000U进入LP”但无LP分配】</span>
-    需确认：
-    <ol>
-      <li>路径2到底是“进入 LP”还是“进入平衡 Treasury 体系”；</li>
-      <li>若进入 LP，分配表中为何没有 LP 项；</li>
-      <li>若是“进入平衡体系”，该表述需全文统一；</li>
-      <li>“直推奖 10%”是否拆分为三级推荐 5%、3%、2% 发放；</li>
-      <li>路径2的 10% 直推奖与 8.1 的三级推荐 10% 是否为同一笔资金。</li>
-    </ol>
-  </div>
-
-  <div class="pending">
-    <span class="ttl">【待确认14：最低入金与完整入金操作路径未定义】</span>
-    原文仅有“1000 以上才享有”的份额门槛表述，以及路径1／路径2的资金分配表；需明确：
-    <ol>
-      <li>最低入金金额；</li>
-      <li>适用币种；</li>
-      <li>两路径最低入金是否不同；</li>
-      <li>入金确认、失败、退款及记账规则；</li>
-      <li>入金后进入路径1还是路径2的选择规则；</li>
-      <li>入金金额不足、超额、分批入金如何处理。</li>
-    </ol>
-  </div>
+  <h3>9.3 入金规则</h3>
+  <ul>
+    <li><strong>最低入金金额</strong>：100U；</li>
+    <li><strong>两路径最低入金</strong>：相同；</li>
+    <li><strong>适用币种</strong>：USDT；</li>
+    <li><strong>入金确认</strong>：入金确认失败直接退款；</li>
+    <li><strong>收益形式</strong>：路径 1 收益拿币；路径 2 收益拿 SOL；</li>
+    <li><strong>金额异常</strong>：入金金额不足或超额，交易不成功；</li>
+    <li><strong>分批入金</strong>：购买不同配套账号，形成每个不同的合约；</li>
+    <li><strong>同一账号</strong>：可以购买 LP 底池配套和平衡池配套。</li>
+  </ul>
 </section>
 
 <!-- ============ 十 ============ -->
@@ -1440,7 +1003,7 @@ footer::before{
     <li>静动态收益：<strong>3 倍封顶</strong>；</li>
     <li>原点位复投；</li>
     <li>权限收益：每天 <strong>0.3%～1%</strong>；</li>
-    <li>收益得到的是平台稳定币，<strong>100% 可以转去游戏或消费</strong>；</li>
+    <li>收益得到的是平台稳定币；</li>
     <li>所有收益分为：
       <ul>
         <li>最多可换 <strong>60% 币</strong>；</li>
@@ -1461,17 +1024,7 @@ footer::before{
       </ul>
     </li>
   </ul>
-
-  <div class="pending">
-    <span class="ttl">【待确认7：LP 收益“100%可转游戏消费”与“60%换币+40%游戏消费”的关系】</span>
-    需统一表述，明确先后关系：
-    <ol>
-      <li>“100% 可以转去游戏或消费”是否指收益到账后全部可用于游戏／消费；</li>
-      <li>“最多可换 60% 币、40% 可用于游戏／消费”是否指收益分配结构；</li>
-      <li>两者是否冲突，还是分别指“使用场景”与“兑换比例”；</li>
-      <li>可兑换边界、顺序、是否可逆、是否影响 3X 封顶需明确。</li>
-    </ol>
-  </div>
+  <p>LP 每日静动态收益先得到平台稳定币 USBT；USBT 100% 可转游戏或消费。USBT 最多可换 60% 币，40% 可用于游戏／消费，游戏和消费合计最低 40%。3X 以 USBT 计算。</p>
 
   <h3>10.2 平衡 Treasury 参与者</h3>
   <ul>
@@ -1496,19 +1049,7 @@ footer::before{
     </li>
     <li>U 提现手续费：<strong>10% 进入重购池</strong>。</li>
   </ul>
-
-  <div class="pending">
-    <span class="ttl">【待确认11：3 倍封顶是否按“金本位／U本位”计算】</span>
-    需确认：
-    <ol>
-      <li>“金本位”是否指 USDT／USD 稳定币本位；</li>
-      <li>封顶基数是净入金、累计入金、原点位还是有效质押额；</li>
-      <li>分红、直推、社区等收益是否计入封顶；</li>
-      <li>复投是否重置封顶；</li>
-      <li>封顶计算时 Token／矿机资产如何折算；</li>
-      <li>封顶后权限停止的具体范围。</li>
-    </ol>
-  </div>
+  <p>3 倍封顶按金本位计算。</p>
 </section>
 
 <!-- ============ 十一 ============ -->
@@ -1556,70 +1097,10 @@ footer::before{
   </ol>
 </section>
 
-<!-- ============ 十三 ============ -->
-<section id="s13" data-chap="13">
-  <h2>十三、待确认点索引</h2>
-  <p>本表仅作索引，详细待确认说明已放入对应章节。</p>
-  <div class="tw">
-    <table class="wide">
-      <thead>
-        <tr><th>编号</th><th>待确认点</th><th>所在章节</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>1</td><td>“四池”还是“三池”</td><td>1.1 目标架构</td></tr>
-        <tr><td>2</td><td>Treasury池、平衡池、保障池、保险池的名称关系</td><td>1.2 四池职责总表后</td></tr>
-        <tr><td>3</td><td>云矿池是否负责“动静态释放”</td><td>2.1 唯一职责</td></tr>
-        <tr><td>4</td><td>路径2“每1000U进入LP”但无LP分配；直推奖10%是否拆分</td><td>9.2 路径2</td></tr>
-        <tr><td>5</td><td>V1-V9 级差奖剩余细则</td><td>8.2 领导级差奖表</td></tr>
-        <tr><td>6</td><td>正常 Swap 3% 与防跌 3% 正常费用关系</td><td>5.3 正常 3% Swap 费用分配</td></tr>
-        <tr><td>7</td><td>LP 收益“100%可转游戏消费”与“60%换币+40%游戏消费”</td><td>10.1 LP 质押者</td></tr>
-        <tr><td>8</td><td>保险池资金来源与“Treasury当时可用资金”定义</td><td>6.2 每一级救市规则</td></tr>
-        <tr><td>9</td><td>矿机产币后续路径</td><td>7.2 三账分离</td></tr>
-        <tr><td>10</td><td>云矿池 Token 释放机制的“市场状态”判断阈值标准</td><td>2.3 释放阈值待填表</td></tr>
-        <tr><td>11</td><td>3 倍封顶是否按“金本位／U本位”计算</td><td>10.2 平衡 Treasury 参与者</td></tr>
-        <tr><td>12</td><td>OS 总发行量／最大供应量／初始流通量</td><td>2.3 与 3.3</td></tr>
-        <tr><td>13</td><td>三级推荐 5/3/2 共 10% 的资金来源与发放基数</td><td>8.1 与 9.1</td></tr>
-        <tr><td>14</td><td>最低入金与完整入金操作路径未定义</td><td>第九章末</td></tr>
-      </tbody>
-    </table>
-  </div>
-</section>
-
-<!-- ============ 回复汇总 ============ -->
-<section id="replies" class="reply-summary">
-  <h2>待确认回复汇总</h2>
-  <p class="rs-desc">您在各待确认项下的回复会实时同步到云端（Supabase）。如遇网络问题也会保存在本机，可随时导出 JSON 备份。</p>
-
-  <div class="rs-stats">
-    <div><b id="rs-done">0</b><span>已回复</span></div>
-    <div><b id="rs-total">14</b><span>待确认项</span></div>
-  </div>
-
-  <div class="rs-bar" aria-hidden="true"><i id="rs-progress"></i></div>
-
-  <div class="rs-actions">
-    <button type="button" class="btn btn-primary" id="rs-copy">复制 JSON</button>
-    <button type="button" class="btn" id="rs-export">导出文件</button>
-    <button type="button" class="btn" id="rs-import">导入 JSON</button>
-    <button type="button" class="btn btn-danger" id="rs-reset" style="display:none;">清空全部</button>
-  </div>
-
-  <p class="rs-hint" id="rs-hint" role="status" aria-live="polite"></p>
-  <p class="rs-sync" id="rs-sync">检测服务器中…</p>
-  <p class="rs-sync" id="rs-client" style="opacity:.6;font-size:11.5px;"></p>
-
-  <div class="rs-empty">
-    存储说明：数据自动同步至 Supabase 数据库，同时保留在浏览器 <code>localStorage</code> 中作为离线备份。<br>
-    修改已填内容：点开对应项目直接编辑即可，输入后自动保存。
-  </div>
-
-  <input type="file" id="rs-file" accept="application/json,.json" hidden>
-</section>
-
 </main>
 
 <footer>
-  四池架构规则初版（讨论稿）· 移动端阅读版整理<br>
+  四池架构规则最终版<br>
   具体规则以最终确认口径与合同文本为准
 </footer>
 
@@ -1635,9 +1116,6 @@ footer::before{
 
   document.documentElement.classList.add('js');
 
-  /* ============================================================
-     一、滚动 / 导航 / 进度
-     ============================================================ */
   var nav = document.getElementById('toc');
   var links = Array.prototype.slice.call(nav.querySelectorAll('a'));
   var sections = links.map(function (a) {
@@ -1713,662 +1191,7 @@ footer::before{
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('resize', onScroll);
 
-  /* ============================================================
-     二、Supabase 配置
-     ============================================================ */
-  var SUPABASE_URL  = 'https://lhzstqpyjficpgidfdwb.supabase.co';
-  var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxoenN0cXB5amZpY3BnaWRmZHdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMxNzk1NzMsImV4cCI6MjEwODc1NTU3M30.Wl333RnFXB48Ed2HJExuAdlVmnOci5UW3ej4ZVD816I';
-  var TABLE         = 'replies';
-
-  var STORAGE_KEY = 'four-pool-pending-replies-v1';
-  var CLIENT_KEY  = 'four-pool-client-id-v1';
-  var store = { version: 1, answers: {} };
-  var canPersist = true;
-
-  function getClientId() {
-    var id = null;
-    try { id = localStorage.getItem(CLIENT_KEY); } catch (e) {}
-    if (!id || !/^[A-Za-z0-9_-]{8,64}$/.test(id)) {
-      id = (window.crypto && crypto.randomUUID)
-        ? crypto.randomUUID().replace(/-/g, '')
-        : 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
-      try { localStorage.setItem(CLIENT_KEY, id); } catch (e) {}
-    }
-    return id;
-  }
-  var CLIENT_ID = getClientId();
-
-  /* 管理端模式：URL 带 ?admin=1 时拉取全部客户数据，只读展示 */
-  var IS_ADMIN = false;
-  try {
-    IS_ADMIN = new URLSearchParams(location.search).get('admin') === '1';
-  } catch (e) {}
-
-  /* 显示 client_id，便于与数据库核对 */
-  (function showClientId() {
-    var el = document.getElementById('rs-client');
-    if (!el) return;
-    el.textContent =
-      (IS_ADMIN ? '【管理端模式 · 只读查看全部】' : '') +
-      '本机 client_id：' + CLIENT_ID +
-      '（更换设备或清缓存后会变，云端记录将查不到）';
-  })();
-
-  var syncEl = document.getElementById('rs-sync');
-  function setSyncState(type, msg) {
-    if (!syncEl) return;
-    syncEl.textContent = msg;
-    syncEl.className = 'rs-sync' + (type ? ' ' + type : '');
-  }
-
-  function loadStore() {
-    try {
-      var raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return;
-      var d = JSON.parse(raw);
-      if (d && typeof d === 'object' && d.answers && typeof d.answers === 'object') {
-        store.answers = d.answers;
-      }
-    } catch (e) { canPersist = false; }
-  }
-
-  function persist() {
-    if (!canPersist) return false;
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(store)); return true; }
-    catch (e) { canPersist = false; return false; }
-  }
-
-  function supaHeaders(extra) {
-    var h = {
-      'apikey': SUPABASE_ANON,
-      'Authorization': 'Bearer ' + SUPABASE_ANON
-    };
-    if (extra) for (var k in extra) h[k] = extra[k];
-    return h;
-  }
-
-  /* ---------- 单条写入 / 删除（防抖批量） ---------- */
-  var pendingPush = {};
-  var pushTimer = null;
-
-  function syncPush(id) {
-    if (id != null) pendingPush[String(id)] = true;
-    if (pushTimer) clearTimeout(pushTimer);
-    pushTimer = setTimeout(flushPush, 700);
-  }
-
-  function flushPush() {
-    var ids = Object.keys(pendingPush);
-    pendingPush = {};
-    if (!ids.length) return;
-
-    var upserts = [];
-    var deletes = [];
-
-    ids.forEach(function (id) {
-      var a = store.answers[id];
-      if (a && a.text && a.text.trim()) {
-        upserts.push({
-          client_id: CLIENT_ID,
-          pending_id: Number(id),
-          answer: a.text
-        });
-      } else {
-        deletes.push(id);
-      }
-    });
-
-    setSyncState('', '正在同步…');
-
-    var jobs = [];
-
-    if (upserts.length) {
-      jobs.push(
-        fetch(
-          SUPABASE_URL + '/rest/v1/' + TABLE + '?on_conflict=client_id,pending_id',
-          {
-            method: 'POST',
-            headers: supaHeaders({
-              'Content-Type': 'application/json',
-              'Prefer': 'resolution=merge-duplicates,return=minimal'
-            }),
-            body: JSON.stringify(upserts)
-          }
-        ).then(function (r) {
-          if (!r.ok) throw new Error('HTTP ' + r.status);
-        })
-      );
-    }
-
-    deletes.forEach(function (id) {
-      jobs.push(
-        fetch(
-          SUPABASE_URL + '/rest/v1/' + TABLE +
-          '?client_id=eq.' + encodeURIComponent(CLIENT_ID) +
-          '&pending_id=eq.' + encodeURIComponent(id),
-          { method: 'DELETE', headers: supaHeaders({ 'Prefer': 'return=minimal' }) }
-        ).then(function (r) {
-          if (!r.ok) throw new Error('HTTP ' + r.status);
-        })
-      );
-    });
-
-    Promise.all(jobs)
-      .then(function () { setSyncState('ok', '已同步到 Supabase · ' + timeStr()); })
-      .catch(function (err) {
-        console.error('[flushPush]', err);
-        setSyncState('err', '本地已保存，云端同步失败：' + (err && err.message ? err.message : err));
-      });
-  }
-
-  /* ---------- 清空全部（隐藏按钮，逻辑保留以防误调） ---------- */
-  function syncClearAll() {
-    setSyncState('', '正在清空云端…');
-    return fetch(
-      SUPABASE_URL + '/rest/v1/' + TABLE +
-      '?client_id=eq.' + encodeURIComponent(CLIENT_ID),
-      { method: 'DELETE', headers: supaHeaders({ 'Prefer': 'return=minimal' }) }
-    )
-      .then(function (r) {
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        setSyncState('ok', '云端已清空');
-      })
-      .catch(function (err) {
-        console.error('[syncClearAll]', err);
-        setSyncState('err', '云端清空失败，本地已清空');
-      });
-  }
-
-  /* ---------- 全量导入 ---------- */
-  function syncPushAll() {
-    var rows = Object.keys(store.answers)
-      .filter(function (k) {
-        var a = store.answers[k];
-        return a && a.text && a.text.trim();
-      })
-      .map(function (k) {
-        return { client_id: CLIENT_ID, pending_id: Number(k), answer: store.answers[k].text };
-      });
-    if (!rows.length) return Promise.resolve();
-    setSyncState('', '正在同步全部…');
-    return fetch(
-      SUPABASE_URL + '/rest/v1/' + TABLE + '?on_conflict=client_id,pending_id',
-      {
-        method: 'POST',
-        headers: supaHeaders({
-          'Content-Type': 'application/json',
-          'Prefer': 'resolution=merge-duplicates,return=minimal'
-        }),
-        body: JSON.stringify(rows)
-      }
-    )
-      .then(function (r) {
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        setSyncState('ok', '全部已同步 · ' + timeStr());
-      })
-      .catch(function (err) {
-        console.error('[syncPushAll]', err);
-        setSyncState('err', '全部同步失败：' + (err && err.message ? err.message : err));
-      });
-  }
-
-  /* ---------- 启动时拉取 ---------- */
-  function syncPull() {
-    setSyncState('', IS_ADMIN ? '正在连接 Supabase（管理端）…' : '正在连接 Supabase…');
-
-    var query = IS_ADMIN
-      ? '?select=client_id,pending_id,answer,updated_at&order=updated_at.desc'
-      : '?client_id=eq.' + encodeURIComponent(CLIENT_ID) +
-        '&select=pending_id,answer,updated_at';
-
-    return fetch(
-      SUPABASE_URL + '/rest/v1/' + TABLE + query,
-      { headers: supaHeaders(), cache: 'no-store' }
-    )
-      .then(function (r) {
-        if (r.status === 401 || r.status === 403) {
-          throw new Error('权限不足 ' + r.status + '：Supabase 的 RLS 未开放 SELECT 策略');
-        }
-        if (r.status === 400) {
-          throw new Error('请求被拒 400：表结构或 select 列名不匹配（检查 pending_id/answer/updated_at）');
-        }
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        return r.json();
-      })
-      .then(function (rows) {
-        var merged = 0;
-        (rows || []).forEach(function (row) {
-          var id = String(row.pending_id);
-          var local = store.answers[id];
-          var remoteAt = row.updated_at ? new Date(row.updated_at).getTime() : 0;
-          var localAt = local && local.updatedAt ? new Date(local.updatedAt).getTime() : 0;
-          if (!local || remoteAt >= localAt) {
-            store.answers[id] = { text: row.answer, updatedAt: row.updated_at };
-            merged++;
-          }
-        });
-        persist();
-        refreshAllIds();
-        updateSummary();
-        if (rows && rows.length) {
-          setSyncState('ok', '已从 Supabase 载入 ' + merged + ' 条' + (IS_ADMIN ? '（管理端全量）' : ''));
-        } else {
-          setSyncState('err', '云端返回 0 条：可能是 RLS 未开放 SELECT，或本 client_id 尚无记录');
-        }
-      })
-      .catch(function (err) {
-        console.error('[syncPull]', err);
-        setSyncState('err', '云端读取失败：' + (err && err.message ? err.message : err));
-      });
-  }
-
-  function timeStr(d) {
-    d = d || new Date();
-    var p = function (n) { return (n < 10 ? '0' : '') + n; };
-    return p(d.getHours()) + ':' + p(d.getMinutes());
-  }
-
-  function dateStamp() {
-    var d = new Date();
-    var p = function (n) { return (n < 10 ? '0' : '') + n; };
-    return d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate()) +
-           '-' + p(d.getHours()) + p(d.getMinutes());
-  }
-
-  /* ============================================================
-     三、收集待确认项元信息
-     ============================================================ */
-  var pendings = Array.prototype.slice.call(document.querySelectorAll('.pending'));
-  var meta = {};
-  var order = [];
-
-  pendings.forEach(function (el) {
-    var ttlEl = el.querySelector('.ttl');
-    if (!ttlEl) return;
-
-    var ttlText = ttlEl.textContent.trim();
-    var m = ttlText.match(/待确认\s*(\d+)/);
-    if (!m) return;
-
-    var id = String(Number(m[1]));
-    var title = ttlText
-      .replace(/^【\s*待确认\s*\d+\s*[：:]\s*/, '')
-      .replace(/】\s*$/, '')
-      .trim();
-
-    if (!meta[id]) {
-      meta[id] = { id: Number(id), title: title, locations: [] };
-      order.push(id);
-    }
-
-    var section = el.closest ? el.closest('section') : null;
-    if (section) {
-      var h2 = section.querySelector('h2');
-      var loc = h2 ? h2.textContent.trim() : '';
-      if (loc && meta[id].locations.indexOf(loc) === -1) {
-        meta[id].locations.push(loc);
-      }
-    }
-
-    injectReply(el, id);
-  });
-
-  order.sort(function (a, b) { return Number(a) - Number(b); });
-
-  /* ============================================================
-     四、注入回复 UI
-     ============================================================ */
-  function injectReply(pendingEl, id) {
-    var wrap = document.createElement('div');
-    wrap.className = 'reply';
-    wrap.setAttribute('data-for', id);
-
-    wrap.innerHTML =
-      '<button type="button" class="reply-bar" aria-expanded="false">' +
-        '<span class="reply-line1">' +
-          '<span class="reply-ico" aria-hidden="true"></span>' +
-          '<span class="reply-text">回复此项</span>' +
-          '<span class="reply-badge">未填写</span>' +
-        '</span>' +
-        '<span class="reply-preview"></span>' +
-      '</button>' +
-      '<div class="reply-body">' +
-        '<div class="reply-inner">' +
-          '<textarea rows="3" placeholder="填写您对这一项的确认、补充或修改意见…"></textarea>' +
-          '<div class="reply-meta">' +
-            '<span class="reply-saved">输入后自动保存</span>' +
-            '<button type="button" class="mini-btn reply-clear">清空</button>' +
-          '</div>' +
-        '</div>' +
-      '</div>';
-
-    pendingEl.appendChild(wrap);
-
-    var bar = wrap.querySelector('.reply-bar');
-    var ta = wrap.querySelector('textarea');
-    var savedEl = wrap.querySelector('.reply-saved');
-    var clearBtn = wrap.querySelector('.reply-clear');
-
-    var ans = store.answers[id];
-    if (ans && typeof ans.text === 'string') {
-      ta.value = ans.text;
-    }
-    updateWrap(wrap, ta.value, ans && ans.updatedAt);
-
-    /* 管理端：只读展示，防止误编辑覆盖他人数据 */
-    if (IS_ADMIN) {
-      ta.setAttribute('readonly', 'readonly');
-      savedEl.textContent = '只读查看（管理端）';
-      clearBtn.style.display = 'none';
-      bar.addEventListener('click', function () {
-        var open = wrap.classList.toggle('open');
-        bar.setAttribute('aria-expanded', open ? 'true' : 'false');
-      });
-      return;
-    }
-
-    bar.addEventListener('click', function () {
-      var open = wrap.classList.toggle('open');
-      bar.setAttribute('aria-expanded', open ? 'true' : 'false');
-      if (open) {
-        setTimeout(function () {
-          try { ta.focus({ preventScroll: true }); } catch (e) { ta.focus(); }
-        }, 190);
-      }
-    });
-
-    var timer = null;
-    ta.addEventListener('input', function () {
-      updateWrap(wrap, ta.value, null);
-      if (timer) clearTimeout(timer);
-      savedEl.textContent = '正在保存…';
-      timer = setTimeout(function () {
-        setAnswer(id, ta.value);
-        savedEl.textContent = '本地已保存';
-      }, 420);
-    });
-
-    clearBtn.addEventListener('click', function (e) {
-      e.stopPropagation();
-      if (!ta.value) return;
-      if (!window.confirm('确定清空这一项的回复？')) return;
-      ta.value = '';
-      setAnswer(id, '');
-      savedEl.textContent = '已清空';
-    });
-  }
-
-  function updateWrap(wrap, text, updatedAt) {
-    var has = !!(text && text.trim());
-    wrap.classList.toggle('has', has);
-
-    var textEl = wrap.querySelector('.reply-text');
-    var badge = wrap.querySelector('.reply-badge');
-    var preview = wrap.querySelector('.reply-preview');
-    var savedEl = wrap.querySelector('.reply-saved');
-
-    if (has) {
-      textEl.textContent = '已回复 · 点击展开' + (IS_ADMIN ? '查看' : '编辑');
-      badge.textContent = '已填写';
-      preview.textContent = text.replace(/\s+/g, ' ').trim();
-      if (savedEl && updatedAt) {
-        savedEl.textContent = (IS_ADMIN ? '云端更新 · ' : '已保存 · ') + timeStr(new Date(updatedAt));
-      }
-    } else {
-      textEl.textContent = IS_ADMIN ? '暂无回复' : '回复此项';
-      badge.textContent = '未填写';
-      preview.textContent = '';
-      if (savedEl) savedEl.textContent = IS_ADMIN ? '只读查看（管理端）' : '输入后自动保存';
-    }
-  }
-
-  function setAnswer(id, text) {
-    text = text || '';
-    if (text.trim()) {
-      store.answers[id] = { text: text, updatedAt: new Date().toISOString() };
-    } else {
-      delete store.answers[id];
-    }
-    persist();
-    refreshAll(id);
-    updateSummary();
-    syncPush(id);
-  }
-
-  function refreshAll(id) {
-    var wraps = document.querySelectorAll('.reply[data-for="' + id + '"]');
-    var ans = store.answers[id];
-    var text = ans && typeof ans.text === 'string' ? ans.text : '';
-    Array.prototype.forEach.call(wraps, function (w) {
-      var ta = w.querySelector('textarea');
-      if (ta && ta.value !== text) ta.value = text;
-      updateWrap(w, text, ans && ans.updatedAt);
-    });
-  }
-
-  function refreshAllIds() {
-    order.forEach(function (id) { refreshAll(id); });
-  }
-
-  /* ============================================================
-     五、汇总与导出
-     ============================================================ */
-  var rsDone = document.getElementById('rs-done');
-  var rsTotal = document.getElementById('rs-total');
-  var rsProgress = document.getElementById('rs-progress');
-  var rsHint = document.getElementById('rs-hint');
-  var tocReplyCount = document.getElementById('toc-reply-count');
-
-  function answeredIds() {
-    return order.filter(function (id) {
-      var a = store.answers[id];
-      return a && typeof a.text === 'string' && a.text.trim();
-    });
-  }
-
-  function updateSummary() {
-    var total = order.length;
-    var done = answeredIds().length;
-
-    if (rsDone) rsDone.textContent = done;
-    if (rsTotal) rsTotal.textContent = total;
-    if (rsProgress) rsProgress.style.width = (total ? (done / total) * 100 : 0) + '%';
-    if (tocReplyCount) tocReplyCount.textContent = done + '/' + total;
-  }
-
-  function buildExport() {
-    var items = order.map(function (id) {
-      var a = store.answers[id];
-      return {
-        id: Number(id),
-        title: meta[id].title,
-        locations: meta[id].locations.slice(),
-        answer: a && typeof a.text === 'string' ? a.text : '',
-        updatedAt: a && a.updatedAt ? a.updatedAt : null
-      };
-    });
-
-    return {
-      doc: '四池架构规则初版（讨论稿）',
-      version: 1,
-      exportedAt: new Date().toISOString(),
-      total: items.length,
-      answered: items.filter(function (x) { return x.answer.trim(); }).length,
-      items: items
-    };
-  }
-
-  var hintTimer = null;
-  function hint(msg, type) {
-    if (!rsHint) return;
-    rsHint.textContent = msg;
-    rsHint.className = 'rs-hint' + (type ? ' ' + type : ' ok');
-    if (hintTimer) clearTimeout(hintTimer);
-    hintTimer = setTimeout(function () {
-      rsHint.textContent = '';
-      rsHint.className = 'rs-hint';
-    }, 3800);
-  }
-
-  /* 复制 */
-  var copyBtn = document.getElementById('rs-copy');
-  if (copyBtn) {
-    copyBtn.addEventListener('click', function () {
-      var text = JSON.stringify(buildExport(), null, 2);
-
-      function fallback() {
-        var t = document.createElement('textarea');
-        t.value = text;
-        t.style.position = 'fixed';
-        t.style.top = '0';
-        t.style.opacity = '0';
-        document.body.appendChild(t);
-        t.focus();
-        t.select();
-        var ok = false;
-        try { ok = document.execCommand('copy'); } catch (e) {}
-        document.body.removeChild(t);
-        hint(ok ? '已复制 JSON 到剪贴板' : '复制失败，请改用「导出文件」', ok ? 'ok' : 'err');
-      }
-
-      if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(text).then(function () {
-          hint('已复制 JSON 到剪贴板');
-        }).catch(fallback);
-      } else {
-        fallback();
-      }
-    });
-  }
-
-  /* 导出文件 */
-  var exportBtn = document.getElementById('rs-export');
-  if (exportBtn) {
-    exportBtn.addEventListener('click', function () {
-      var json = JSON.stringify(buildExport(), null, 2);
-      var blob = new Blob([json], { type: 'application/json;charset=utf-8' });
-
-      if (window.navigator && window.navigator.msSaveOrOpenBlob) {
-        window.navigator.msSaveOrOpenBlob(blob, '四池架构-待确认回复-' + dateStamp() + '.json');
-        hint('已导出 JSON 文件');
-        return;
-      }
-
-      var url = URL.createObjectURL(blob);
-      var a = document.createElement('a');
-      a.href = url;
-      a.download = '四池架构-待确认回复-' + dateStamp() + '.json';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
-      hint('已导出 JSON 文件');
-    });
-  }
-
-  /* 导入 */
-  var importBtn = document.getElementById('rs-import');
-  var fileInput = document.getElementById('rs-file');
-  if (importBtn && fileInput) {
-    importBtn.addEventListener('click', function () {
-      if (IS_ADMIN) { hint('管理端为只读模式，不能导入', 'err'); return; }
-      fileInput.click();
-    });
-
-    fileInput.addEventListener('change', function () {
-      var f = fileInput.files && fileInput.files[0];
-      if (!f) return;
-
-      var reader = new FileReader();
-      reader.onload = function () {
-        var count = 0;
-        try {
-          var d = JSON.parse(reader.result);
-
-          if (d && d.answers && typeof d.answers === 'object') {
-            Object.keys(d.answers).forEach(function (k) {
-              var v = d.answers[k];
-              var txt = '';
-              var at = null;
-              if (typeof v === 'string') { txt = v; }
-              else if (v && typeof v.text === 'string') { txt = v.text; at = v.updatedAt || null; }
-              if (txt.trim()) {
-                store.answers[String(Number(k))] = {
-                  text: txt,
-                  updatedAt: at || new Date().toISOString()
-                };
-                count++;
-              }
-            });
-          }
-
-          if (d && Array.isArray(d.items)) {
-            d.items.forEach(function (it) {
-              if (!it || it.id == null) return;
-              var txt = typeof it.answer === 'string' ? it.answer : '';
-              if (!txt.trim()) return;
-              store.answers[String(Number(it.id))] = {
-                text: txt,
-                updatedAt: it.updatedAt || new Date().toISOString()
-              };
-              count++;
-            });
-          }
-
-          if (!count) {
-            hint('未在文件中找到回复内容', 'err');
-          } else {
-            persist();
-            refreshAllIds();
-            updateSummary();
-            syncPushAll();
-            hint('已导入 ' + count + ' 条回复（同编号已覆盖）');
-          }
-        } catch (e) {
-          hint('导入失败：JSON 格式不正确', 'err');
-        }
-        fileInput.value = '';
-      };
-      reader.onerror = function () {
-        hint('读取文件失败', 'err');
-        fileInput.value = '';
-      };
-      reader.readAsText(f, 'utf-8');
-    });
-  }
-
-  /* 清空全部（按钮已隐藏，逻辑保留以防误调） */
-  var resetBtn = document.getElementById('rs-reset');
-  if (resetBtn) {
-    resetBtn.addEventListener('click', function () {
-      if (IS_ADMIN) { hint('管理端为只读模式，不能清空', 'err'); return; }
-      if (!answeredIds().length) {
-        hint('当前没有已填写的回复');
-        return;
-      }
-      if (!window.confirm('确定清空全部待确认回复？此操作不可撤销。')) return;
-      store.answers = {};
-      persist();
-      refreshAllIds();
-      updateSummary();
-      syncClearAll();
-      hint('已清空全部回复');
-    });
-  }
-
-  /* ============================================================
-     六、启动
-     ============================================================ */
-  loadStore();
-  refreshAllIds();
-  updateSummary();
   onScroll();
-  syncPull();
-
-  if (!canPersist) {
-    hint('当前浏览器无法持久化存储，请使用「导出文件」及时备份', 'err');
-  }
-
 })();
 </script>
 
